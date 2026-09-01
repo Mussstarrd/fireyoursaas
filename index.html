@@ -71,6 +71,20 @@
   .sheet-preview td.good { background: var(--green-bg); color: var(--green-text); font-weight: 700; text-align: center; }
   .sheet-preview td.warn { background: var(--red-bg); color: var(--red-text); font-weight: 700; text-align: center; }
 
+  /* card gallery + lightbox */
+  .gal { display:flex; gap:6px; margin:0 0 12px; }
+  .gal button { border:1px solid var(--border); padding:0; background:none; cursor:pointer; border-radius:4px; overflow:hidden; flex:1; position:relative; }
+  .gal img { width:100%; height:52px; object-fit:cover; display:block; }
+  .gal .more { position:absolute; inset:0; background:rgba(19,41,75,.55); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
+  .gal-hint { font-size:11px; color:var(--muted); margin:-8px 0 10px; }
+  .lb { position:fixed; inset:0; background:rgba(10,16,28,.96); z-index:1000; display:none; flex-direction:column; }
+  .lb.open { display:flex; }
+  .lb-img { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; padding:8px; }
+  .lb-img img { max-width:100%; max-height:100%; object-fit:contain; border-radius:4px; }
+  .lb-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:16px; }
+  .lb button { background:rgba(255,255,255,.12); border:none; color:#fff; font-size:20px; padding:8px 18px; border-radius:6px; cursor:pointer; }
+  .lb .lb-x { font-size:16px; }
+
   .card-hook { font-size: 13.5px; color: var(--muted); line-height: 1.4; margin-bottom: 16px; flex-grow: 1; }
   .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
   .price-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--navy); }
@@ -228,6 +242,13 @@
           <tr><td>Sales to Cover a $150 Booth</td><td class="fx">18 candles</td></tr>
           <tr><td>Thin-Margin Product Warning</td><td class="warn">⚠ LOSES MONEY UNDER OFFSITE ADS</td></tr>
         </table>
+        <div class="gal" aria-label="Screenshots">
+          <button onclick="lbOpen('crafters',0)"><img loading="lazy" src="covers/crafters/01.jpg" alt="Start Here tab"></button>
+          <button onclick="lbOpen('crafters',1)"><img loading="lazy" src="covers/crafters/02.jpg" alt="Dashboard tab"></button>
+          <button onclick="lbOpen('crafters',4)"><img loading="lazy" src="covers/crafters/05.jpg" alt="Recipes tab"></button>
+          <button onclick="lbOpen('crafters',5)"><img loading="lazy" src="covers/crafters/06.jpg" alt="Fair planner tab"><span class="more">+4</span></button>
+        </div>
+        <div class="gal-hint">Tap a screenshot to view full screen</div>
         <div class="card-hook">Prices every product by the gram/inch through the full 2026 Etsy fee stack — including the Offsite Ads trap — and tells you whether a craft-fair booth is worth booking <em>before</em> you pay the fee.</div>
         <div class="card-footer">
           <div class="price-tag">$50 <small>one-time</small></div>
@@ -283,6 +304,23 @@
     <span class="brand">fireyour<em>SaaS</em></span> · Veteran-owned, Locust Grove VA · [PHYSICAL MAILING ADDRESS] · You received an email because your business is listed publicly in the Locust Grove VA area; reply STOP to any email and you won't hear from me again. Prices in USD. Workbooks are pricing tools, not financial advice — you set your own rates.<br>
     <span class="ph">STILL TO FILL BEFORE SENDING: [PHYSICAL MAILING ADDRESS] — then delete this line.</span>
   </div>
+
+
+<div class="lb" id="lb" onclick="if(event.target===this)lbClose()">
+  <div class="lb-bar"><button class="lb-x" onclick="lbClose()">✕ Close</button><span id="lbN"></span><span style="width:90px"></span></div>
+  <div class="lb-img" id="lbImgWrap"><img id="lbImg" src="" alt="Screenshot full screen"></div>
+  <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button onclick="lbNav(1)">Next ›</button></div>
+</div>
+<script>
+var GALS={crafters:["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg"]};
+var lbG=null,lbI=0;
+function lbShow(){var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/"+f[lbI];document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
+function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";}
+function lbClose(){document.getElementById("lb").classList.remove("open");document.body.style.overflow="";}
+function lbNav(d){var n=GALS[lbG].length;lbI=(lbI+d+n)%n;lbShow();}
+document.addEventListener("keydown",function(e){if(!document.getElementById("lb").classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowRight")lbNav(1);if(e.key==="ArrowLeft")lbNav(-1);});
+(function(){var x0=null,w=document.getElementById("lbImgWrap");w.addEventListener("touchstart",function(e){x0=e.touches[0].clientX;},{passive:true});w.addEventListener("touchend",function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);x0=null;},{passive:true});})();
+</script>
 
 </div>
 <script src="https://gumroad.com/js/gumroad.js"></script>
