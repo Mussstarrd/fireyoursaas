@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Pricing Engines</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --navy: #13294B; --navy-light: #1E3A66; --accent: #E05A1B; --accent-glow: #FFF0E8;
+    --ink: #1F2937; --muted: #4B5563; --light-bg: #F4F6F8; --card-bg: #FFFFFF; --border: #D1D5DB;
+    --blue-cell: #DCEAFE; --gray-cell: #F3F4F6;
+    --green-bg: #DCFCE7; --green-text: #166534; --red-bg: #FEE2E2; --red-text: #991B1B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--light-bg); color: var(--ink);
+    font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px; line-height: 1.5; padding: 30px 15px;
+  }
+  .container {
+    max-width: 980px; margin: 0 auto; background: #FFFFFF; border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden;
+  }
+
+  /* Hero */
+  .hero { background: var(--navy); color: #FFFFFF; padding: 44px 36px 36px; border-bottom: 5px solid var(--accent); }
+  .tag {
+    display: inline-block; background: var(--accent); color: #FFFFFF;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 10px; border-radius: 3px; margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 800;
+    line-height: 1.0; letter-spacing: -0.01em; margin-bottom: 14px;
+  }
+  h1 .saas em { font-style: normal; color: var(--accent); text-decoration: underline wavy 3px; text-underline-offset: 8px; }
+  .hero p { font-size: 18px; color: #E2E8F0; max-width: 720px; line-height: 1.45; }
+  .hero p strong { color: #FFF; font-weight: 700; }
+
+  /* Metrics strip */
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); background: #F8FAFC; border-bottom: 1px solid var(--border); }
+  .metric-box { padding: 16px 20px; border-right: 1px solid var(--border); }
+  .metric-box:last-child { border-right: none; }
+  .metric-val { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); line-height: 1.1; }
+  .metric-lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Body */
+  .section-body { padding: 36px; }
+  .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+  .section-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 24px; }
+
+  /* Cards */
+  .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+  @media(max-width: 720px) { .grid-2x2 { grid-template-columns: 1fr; } }
+  .card {
+    background: #FFFFFF; border: 1px solid var(--border); border-top: 4px solid var(--navy-light);
+    border-radius: 6px; padding: 18px; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .card.featured { border-top-color: var(--accent); }
+  .card-target { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); margin: 2px 0 10px; }
+
+  .sheet-preview { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
+  .sheet-preview th { background: var(--navy); color: #FFF; text-align: left; padding: 5px 8px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .sheet-preview td { padding: 5px 8px; border: 1px solid var(--border); }
+  .sheet-preview td.in { background: var(--blue-cell); font-family: 'IBM Plex Mono', monospace; text-align: right; }
+  .sheet-preview td.fx { background: var(--gray-cell); font-family: 'IBM Plex Mono', monospace; text-align: right; }
+  .sheet-preview td.hl { background: var(--navy-light); color: #FFF; font-weight: 700; font-family: 'IBM Plex Mono', monospace; text-align: right; }
+  .sheet-preview td.good { background: var(--green-bg); color: var(--green-text); font-weight: 700; text-align: center; }
+  .sheet-preview td.warn { background: var(--red-bg); color: var(--red-text); font-weight: 700; text-align: center; }
+
+  .card-hook { font-size: 13.5px; color: var(--muted); line-height: 1.4; margin-bottom: 16px; flex-grow: 1; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
+  .price-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--navy); }
+  .price-tag s { color: var(--muted); font-weight: 400; font-size: 18px; margin-right: 4px; }
+  .price-tag small { font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 400; color: var(--muted); }
+  .btn-download {
+    background: var(--navy); color: #FFF; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 6px 14px; border-radius: 4px; text-decoration: none; text-transform: uppercase; display: inline-block;
+  }
+
+  /* Founding cohort strip */
+  .cohort-strip {
+    background: var(--accent-glow); border: 1px solid var(--accent); border-left: 5px solid var(--accent);
+    border-radius: 4px; padding: 16px 20px; margin-bottom: 30px;
+  }
+  .cohort-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; color: var(--navy); }
+  .cohort-title b { color: var(--accent); }
+  .cohort-strip p { font-size: 14px; color: var(--ink); margin-top: 4px; }
+  .cohort-strip .fine { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+  /* Comparison box */
+  .comparison-box { background: var(--navy); color: #FFF; border-radius: 6px; padding: 24px; margin-bottom: 30px; }
+  .comparison-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+  .comparison-sub { font-size: 15px; color: #CBD5E1; margin-bottom: 18px; }
+  .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 600px) { .comparison-grid { grid-template-columns: 1fr; } }
+  .comp-card { padding: 16px; border-radius: 4px; }
+  .comp-card.saas { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); }
+  .comp-card.custom { background: rgba(255,255,255,0.08); border: 2px solid var(--accent); }
+  .comp-head { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+  .comp-card ul { list-style: none; font-size: 13.5px; color: #E2E8F0; }
+  .comp-card ul li { margin-bottom: 6px; position: relative; padding-left: 18px; }
+  .comp-card.saas ul li::before { content: "✕"; color: #F87171; position: absolute; left: 0; font-weight: 700; }
+  .comp-card.custom ul li::before { content: "✓"; color: #4ADE80; position: absolute; left: 0; font-weight: 700; }
+  .comp-tiers { margin-top: 14px; font-size: 13px; color: #CBD5E1; }
+  .comp-tiers b { color: #FDBA74; }
+
+  /* Contact strip + footer */
+  .contact-strip {
+    background: #F8FAFC; border: 1px solid var(--border); border-left: 5px solid var(--accent);
+    padding: 18px 24px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .contact-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--navy); }
+  .contact-detail { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .compliance { font-size: 12px; color: var(--muted); padding: 18px 36px 26px; border-top: 1px solid var(--border); }
+  .ph { background: var(--red-bg); color: var(--red-text); padding: 0 4px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <span class="tag">Local to Locust Grove VA · Built by a fellow jack of all trades</span>
+    <h1>Fire Your <span class="saas">S<em>aaS</em></span>.</h1>
+    <p>Generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. <strong>These are purpose-built back-office systems in a single Excel file you own</strong> — price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's. <strong>From $47. Once.</strong></p>
+  </div>
+
+  <!-- Metrics strip -->
+  <div class="strip">
+    <div class="metric-box">
+      <div class="metric-val">$47–$77</div>
+      <div class="metric-lbl">Launch Price (List $77–$147) / Own Forever</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val">20 MIN</div>
+      <div class="metric-lbl">Guided Setup Time</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val">750+</div>
+      <div class="metric-lbl">Automated Formula Checks</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val">0 MACROS</div>
+      <div class="metric-lbl">Runs Offline in Excel / Sheets</div>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <div class="section-body">
+    <div class="section-title">Trade Pricing &amp; Job-Costing Systems</div>
+    <div class="section-subtitle">Each one is a mini CRM plus a live bill-of-materials tracker for a shop of one. Blue cells are your live inputs; gray cells calculate loaded costs, fee stacks, and profit guardrails.</div>
+
+    <div class="grid-2x2">
+
+      <!-- HVAC -->
+      <div class="card">
+        <div class="card-target">Heating &amp; Air — 1–2 Truck Shops</div>
+        <div class="card-title">HVAC Quoting Engine</div>
+        <table class="sheet-preview">
+          <tr><th>Input / Job Item</th><th>Formula Result</th></tr>
+          <tr><td>Tech Base Wage</td><td class="in">$28.00/hr</td></tr>
+          <tr><td>Shop Overhead (Van, Ins, Tools)</td><td class="in">$48,000/yr</td></tr>
+          <tr><td><strong>Rate You MUST Bill</strong></td><td class="hl">$114.09/hr</td></tr>
+          <tr><td>Capacitor Swap (Standard Flat)</td><td class="fx">$125.05</td></tr>
+          <tr><td>Same Job (9pm Sunday Call)</td><td class="fx">$139.31</td></tr>
+        </table>
+        <div class="card-hook">Stops driveway guessing. Builds your whole flat-rate price book from your real costs, with Good/Better/Best tiers and a Quick Quote tab a tech can run on a tablet.</div>
+        <div class="card-footer">
+          <div class="price-tag"><s>$147</s> $77 <small>founding</small></div>
+          <a class="btn-download" href="#contact">Get It</a>
+        </div>
+      </div>
+
+      <!-- Electrical -->
+      <div class="card">
+        <div class="card-target">Electricians — Solo &amp; Side-Work</div>
+        <div class="card-title">Electrical Quoting Engine</div>
+        <table class="sheet-preview">
+          <tr><th>Flat-Rate Assembly</th><th>Formula Result</th></tr>
+          <tr><td>True Burdened Shop Rate</td><td class="fx">$120.47/hr</td></tr>
+          <tr><td>Service Call (Trip + 1st Hr)</td><td class="fx">$183.67</td></tr>
+          <tr><td>GFCI Receptacle Upgrade</td><td class="fx">$144.40</td></tr>
+          <tr><td>200A Panel Swap (Flat)</td><td class="fx">$2,425.51</td></tr>
+          <tr><td>Materials Markup Bracket</td><td class="fx">Automatic</td></tr>
+        </table>
+        <div class="card-hook">Kills buddy rates on side work and stops you marking up a $285 panel like a $2 wire nut. Built-in 15% discovery contingency and permit + admin billing.</div>
+        <div class="card-footer">
+          <div class="price-tag"><s>$117</s> $67 <small>founding</small></div>
+          <a class="btn-download" href="#contact">Get It</a>
+        </div>
+      </div>
+
+      <!-- Welding -->
+      <div class="card">
+        <div class="card-target">Mobile Welders &amp; Small Fab</div>
+        <div class="card-title">Welding Quoting Engine</div>
+        <table class="sheet-preview">
+          <tr><th>Mobile Job Scenario</th><th>Formula Result</th></tr>
+          <tr><td>Rig Rate (Truck + Gen Included)</td><td class="fx">$124.50/hr</td></tr>
+          <tr><td>Enforced Minimum Call-Out</td><td class="fx">$175.00</td></tr>
+          <tr><td>30-min Re-Tack, 14 mi Out</td><td class="fx">$175.00</td></tr>
+          <tr><td>…Realized Rate for That 30 Min</td><td class="good">$284/hr</td></tr>
+          <tr><td>Quote Margin Health Check</td><td class="good">GREEN</td></tr>
+        </table>
+        <div class="card-hook">Kills the drive-out profit trap: the sheet won't quote a mobile job under your minimum, bills rod and gas per arc-minute (with stub waste), and flags any bid below break-even in RED before it leaves your phone.</div>
+        <div class="card-footer">
+          <div class="price-tag"><s>$97</s> $57 <small>founding</small></div>
+          <a class="btn-download" href="#contact">Get It</a>
+        </div>
+      </div>
+
+      <!-- Maker -->
+      <div class="card featured">
+        <div class="card-target">Handmade Sellers — Etsy &amp; Craft Fairs</div>
+        <div class="card-title">Maker Pricing Engine</div>
+        <table class="sheet-preview">
+          <tr><th>8 oz Soy Candle</th><th>Formula Result</th></tr>
+          <tr><td>Wax, Oil, Wick, Jar, Box + Label</td><td class="fx">$4.13</td></tr>
+          <tr><td>Your Labor (16 min, Actually Paid)</td><td class="fx">$6.00</td></tr>
+          <tr><td><strong>Etsy Shelf Price (25% Net)</strong></td><td class="hl">$20.00</td></tr>
+          <tr><td>Sales to Cover a $150 Booth</td><td class="fx">18 candles</td></tr>
+          <tr><td>Thin-Margin Product Warning</td><td class="warn">⚠ LOSES MONEY UNDER OFFSITE ADS</td></tr>
+        </table>
+        <div class="card-hook">Prices every product by the gram/inch through the full 2026 Etsy fee stack — including the Offsite Ads trap — and tells you whether a craft-fair booth is worth booking <em>before</em> you pay the fee.</div>
+        <div class="card-footer">
+          <div class="price-tag"><s>$77</s> $47 <small>founding</small></div>
+          <a class="btn-download" href="#contact">Get It</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Founding cohort -->
+    <div class="cohort-strip">
+      <div class="cohort-title">Founding Cohort — <b>37 of 100 seats remaining</b></div>
+      <p>Launch prices are founding prices: every seat includes a <strong>personal setup check-in</strong> (we verify your rates, markups and assemblies together) and the <strong>next revision of your engine free</strong>. When the cap fills, list prices apply.</p>
+      <p class="fine">14-Day Math Guarantee: if a calculation fails to perform as demonstrated and we can't fix it within 48 hours — full refund.</p>
+    </div>
+
+    <!-- Custom / anti-SaaS -->
+    <div class="comparison-box">
+      <div class="comparison-title">I Build These Custom.</div>
+      <div class="comparison-sub">Detailing, lawn care, cleaning, food trucks, churches and non-profits, childcare, specialty fabrication — the four engines above prove the architecture. If your pricing lives in your head or a spreadsheet nobody's allowed to touch, I build the engine around how you actually work.</div>
+
+      <div class="comparison-grid">
+        <div class="comp-card saas">
+          <div class="comp-head" style="color:#FCA5A5;">Generic SaaS ($588–$1,788/yr)</div>
+          <ul>
+            <li>Three years in you've paid $1,764–$5,364 — and still own nothing</li>
+            <li>Flat-rate price book often gated behind a $149/mo add-on</li>
+            <li>Your customer data trapped behind someone else's login</li>
+            <li>Stop paying → it all disappears</li>
+          </ul>
+        </div>
+        <div class="comp-card custom">
+          <div class="comp-head" style="color:#FDBA74;">Your Custom Engine (.xlsx)</div>
+          <ul>
+            <li><strong>One flat build fee.</strong> No monthly subscriptions ever</li>
+            <li>Built 100% around your supplies, crew, and rates</li>
+            <li>Runs offline in the field; owned by you forever</li>
+            <li>Validated by 140–220 automated formula tests before delivery</li>
+          </ul>
+        </div>
+      </div>
+      <div class="comp-tiers"><b>$400 flat</b> to adapt an existing engine to your trade (founding rate — the pipeline does the heavy lifting) · ground-up new verticals <b>$1,500–$2,250</b> · multi-location or multi-crew <b>$2,500+</b>. Fixed fee, scoped on one 15-minute call.</div>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-strip" id="contact">
+      <div>
+        <div class="contact-title">Want one? Want yours built?</div>
+        <div style="font-size: 13.5px; color: var(--muted);">Direct owner contact · Fast 15-minute scoping calls · Happy to demo on a screen share</div>
+      </div>
+      <div class="contact-detail">
+        [YOUR NAME] &nbsp;|&nbsp; [PHONE] &nbsp;|&nbsp; [EMAIL]
+      </div>
+    </div>
+
+  </div>
+
+  <div class="compliance">
+    [YOUR BUSINESS NAME] · [PHYSICAL MAILING ADDRESS] · You received an email because your business is listed publicly in the Locust Grove VA area; reply STOP to any email and you won't hear from me again. Prices in USD. Workbooks are pricing tools, not financial advice — you set your own rates.<br>
+    <span class="ph">PLACEHOLDERS TO FILL BEFORE SENDING: [YOUR NAME] [YOUR BUSINESS NAME] [PHONE] [EMAIL] [PHYSICAL MAILING ADDRESS] — and delete this line.</span>
+  </div>
+
+</div>
+</body>
+</html>

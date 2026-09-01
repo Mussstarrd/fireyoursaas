@@ -1,0 +1,4 @@
+# never allow product files into the public site repo
+*.xlsx
+*.xlsm
+*.xls
