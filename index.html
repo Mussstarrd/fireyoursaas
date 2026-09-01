@@ -184,6 +184,13 @@
           <tr><td>Capacitor Swap (Standard Flat)</td><td class="fx">$125.05</td></tr>
           <tr><td>Same Job (9pm Sunday Call)</td><td class="fx">$139.31</td></tr>
         </table>
+        <div class="gal" aria-label="Screenshots">
+          <button onclick="lbOpen('hvac',1)"><img loading="lazy" src="covers/hvac/02.jpg" alt="Quick Quote tab"></button>
+          <button onclick="lbOpen('hvac',5)"><img loading="lazy" src="covers/hvac/06.jpg" alt="Task builder tab"></button>
+          <button onclick="lbOpen('hvac',6)"><img loading="lazy" src="covers/hvac/07.jpg" alt="Quote generator tab"></button>
+          <button onclick="lbOpen('hvac',2)"><img loading="lazy" src="covers/hvac/03.jpg" alt="Dashboard tab"><span class="more">+5</span></button>
+        </div>
+        <div class="gal-hint">Tap a screenshot to view full screen</div>
         <div class="card-hook">Stops driveway guessing. Builds your whole flat-rate price book from your real costs, with Good/Better/Best tiers and a Quick Quote tab a tech can run on a tablet.</div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
@@ -311,7 +318,7 @@
   <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button onclick="lbNav(1)">Next ›</button></div>
 </div>
 <script>
-var GALS={crafters:["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg"]};
+var GALS={crafters:["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg"],hvac:["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg"]};
 var lbG=null,lbI=0;
 function lbShow(){var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/"+f[lbI];document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
 function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";}
