@@ -223,6 +223,15 @@
   @keyframes tada { from { transform: scale(.6); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .pcell.out { animation: none; } }
 
+  /* Stupid-simple intake strip */
+  .ez { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:18px 0 6px; }
+  .ez-kick { text-align:center; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#FDBA74; margin-top:20px; }
+  .ez-step { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.22); border-radius:6px; padding:10px 16px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; display:flex; align-items:center; gap:9px; }
+  .ez-step span { background:var(--accent); color:#fff; border-radius:50%; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; flex:none; }
+  .ez-arrow { color:var(--accent); font-size:22px; font-weight:800; }
+  .ez-cta { text-align:center; margin:8px 0 18px; }
+  .ez-note { display:block; font-size:12.5px; color:#B8C6DC; margin-top:6px; }
+
   /* Contact modal */
   .cm { position:fixed; inset:0; background:rgba(10,16,28,.7); z-index:1100; display:none; align-items:center; justify-content:center; padding:16px; }
   .cm.open { display:flex; }
@@ -366,6 +375,16 @@
     <div class="comparison-box">
       <h2 class="comparison-title">I Build These Custom.</h2>
       <div class="comparison-sub"><b style="color:#FFD9C2;">Quoting, servicing, selling, crafting &mdash; if your business does any of it, an engine fits it.</b> Detailing, lawn care, cleaning, food trucks, churches and non-profits, childcare, specialty fabrication — the four engines above prove the architecture. If your pricing lives in your head or a spreadsheet nobody's allowed to touch, I build the engine around how you actually work.</div>
+
+      <div class="ez-kick">Stupid simple:</div>
+      <div class="ez">
+        <div class="ez-step"><span>1</span>What do you do?</div>
+        <div class="ez-arrow">&rarr;</div>
+        <div class="ez-step"><span>2</span>How do you run it?</div>
+        <div class="ez-arrow">&rarr;</div>
+        <div class="ez-step"><span>3</span>Here&rsquo;s your engine.</div>
+      </div>
+      <div class="ez-cta"><button class="btn-contact" onclick="cmOpen('')">Start the 2-minute intake &rarr;</button><span class="ez-note">Two dropdowns and a reply. Fixed fee quoted before any work starts.</span></div>
 
       <div class="comparison-grid">
         <div class="comp-card saas">
