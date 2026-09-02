@@ -68,11 +68,12 @@
     letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 10px; border-radius: 3px; margin-bottom: 12px;
   }
   h1 {
-    font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 800;
-    line-height: 1.0; letter-spacing: -0.01em; margin-bottom: 14px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: clamp(48px, 8.5vw, 68px); font-weight: 800;
+    line-height: 1.0; letter-spacing: -0.01em; margin-bottom: 6px; text-align: center;
   }
+  .pun { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: clamp(15px, 3vw, 19px); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #FDBA74; margin-bottom: 16px; }
   h1 .saas em { font-style: normal; color: var(--accent); text-decoration: underline wavy 3px; text-underline-offset: 8px; }
-  .hero p { font-size: 18px; color: #E2E8F0; max-width: 720px; line-height: 1.45; }
+  .hero p { font-size: 18px; color: #E2E8F0; max-width: 720px; line-height: 1.45; margin-left: auto; margin-right: auto; text-align: center; }
   .hero p strong { color: #FFF; font-weight: 700; }
 
   /* Metrics strip */
@@ -207,11 +208,11 @@
 
   .hero-lead { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(23px, 4.6vw, 34px); font-weight: 700; line-height: 1.12; color: #FFFFFF; margin: 8px 0 14px; max-width: 720px; }
   .hero-lead em { font-style: normal; color: var(--accent); }
-  .hero-alt { font-size: 15px !important; color: #C9D6E8 !important; margin-top: 10px; }
+  .hero-alt { font-size: 15px !important; color: #C9D6E8 !important; margin: 10px auto 0 !important; }
   .hero-alt b { color: #FFFFFF; }
 
   /* Hero proof demo */
-  .proof { margin-top: 22px; background: var(--navy-light); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; padding: 16px 18px 12px; max-width: 720px; }
+  .proof { margin: 22px auto 0; background: var(--navy-light); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; padding: 16px 18px 12px; max-width: 720px; }
   .proof-cols { display: flex; gap: 18px; align-items: stretch; flex-wrap: wrap; }
   .proof-in { flex: 1 1 200px; min-width: 190px; }
   .proof-out { flex: 1.4 1 250px; min-width: 230px; display: flex; flex-direction: column; justify-content: center; }
@@ -256,6 +257,7 @@
   <!-- Hero -->
   <div class="hero">
     <h1>Fire Your <span class="saas">S<em>aaS</em></span>.</h1>
+    <div class="pun">&mdash; rhymes with what it&rsquo;s a pain in &mdash;</div>
 
     <p>Got SaaS fatigue? Generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. <strong>These are purpose-built back-office systems in a single Excel file you own</strong> — price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's.</p>
     <p class="hero-alt"><b>Never paid for business software in your life?</b> Nearly any small/medium business can discover senselessly lost profits in their margins using this engine.</p>
