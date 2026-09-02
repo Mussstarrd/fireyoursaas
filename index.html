@@ -30,6 +30,8 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How do I know what to charge?","acceptedAnswer":{"@type":"Answer","text":"That is exactly what these engines compute. You type in what you pay in wages, what your overhead costs, and what your materials run — the sheet calculates the rate you must bill to actually make money, then prices every job from it. No more copying the guy down the road, and no more hoping the number in your head still covers this year's insurance."}},
+{"@type":"Question","name":"I don't use any software — is this still for me?","acceptedAnswer":{"@type":"Answer","text":"Especially you. Most owners price from their head, a notebook, or a spreadsheet somebody made years ago. The engine replaces the guessing, not an app: any small or medium business that quotes jobs, services customers, sells products, or crafts things can run its numbers through one of these. And if your trade is not one of the four, custom builds start at $400."}},
 {"@type":"Question","name":"What is SaaS fatigue — and is a spreadsheet really the fix?","acceptedAnswer":{"@type":"Answer","text":"SaaS fatigue is what small business owners call the pile-up of rising subscription costs, unused seats and features, and lock-in — you stop paying and your own data disappears. For a one-to-three-person shop, pricing, quoting and job costing is math, and a purpose-built Excel file does that math without a monthly fee. These engines are that file: price book, quote builder, job log and profit dashboard, validated by 750+ automated formula checks."}},
 {"@type":"Question","name":"Is this an alternative to field-service software like Jobber or Housecall Pro?","acceptedAnswer":{"@type":"Answer","text":"For the pricing, quoting and job-costing side at a shop of one or two — yes, that is exactly the job it does. Subscription field-service platforms run $588–$1,788 a year and often gate the flat-rate price book behind an add-on; they earn their keep on scheduling and dispatch for bigger crews. If what you actually use is the price book and the quote math, one Excel file you own covers it for $75, once."}},
 {"@type":"Question","name":"Do I need anything besides Excel? Any macros to enable?","acceptedAnswer":{"@type":"Answer","text":"No. Zero macros, no login, no internet connection required. The engines run in desktop Excel or Google Sheets and work offline in a driveway. That\u2019s deliberate: a lot of spreadsheet tools this deep are riddled with macros — .xlsm files that trip Excel's security warnings and get blocked or stripped by email filters. These are plain .xlsx files, small enough to email to your phone, your accountant, or the shop laptop with zero warnings and nothing to enable."}},
@@ -184,6 +186,9 @@
   .loss .lw-big { color:var(--red-text); } .win .lw-big { color:var(--green-text); }
   .lw-cell small { display:block; font-size:12.5px; line-height:1.35; color:var(--ink); margin-top:3px; }
 
+  .hero-alt { font-size: 15px !important; color: #C9D6E8 !important; margin-top: 10px; }
+  .hero-alt b { color: #FFFFFF; }
+
   /* Hero proof demo */
   .proof { margin-top: 22px; background: var(--navy-light); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; padding: 16px 18px 12px; max-width: 720px; }
   .proof-cols { display: flex; gap: 18px; align-items: stretch; flex-wrap: wrap; }
@@ -217,6 +222,7 @@
     <h1>Fire Your <span class="saas">S<em>aaS</em></span>.</h1>
 
     <p>Got SaaS fatigue? Rising subscription costs, unused seats, feature lock-in — generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. <strong>These are purpose-built back-office systems in a single Excel file you own</strong> — price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's. <strong>$75. Once.</strong></p>
+    <p class="hero-alt">Never paid for business software in your life? Even better. If your prices live in your head, a notebook, or a taped-together spreadsheet, this replaces the guessing &mdash; not an app. <b>Any small or medium business that quotes jobs, services customers, sells products, or crafts things can run its numbers through one of these.</b></p>
 
     <div class="proof" aria-label="Live example from the HVAC engine">
       <div class="proof-cols">
@@ -334,7 +340,7 @@
     <!-- Custom / anti-SaaS -->
     <div class="comparison-box">
       <h2 class="comparison-title">I Build These Custom.</h2>
-      <div class="comparison-sub">Detailing, lawn care, cleaning, food trucks, churches and non-profits, childcare, specialty fabrication — the four engines above prove the architecture. If your pricing lives in your head or a spreadsheet nobody's allowed to touch, I build the engine around how you actually work.</div>
+      <div class="comparison-sub"><b style="color:#FFD9C2;">Quoting, servicing, selling, crafting &mdash; if your business does any of it, an engine fits it.</b> Detailing, lawn care, cleaning, food trucks, churches and non-profits, childcare, specialty fabrication — the four engines above prove the architecture. If your pricing lives in your head or a spreadsheet nobody's allowed to touch, I build the engine around how you actually work.</div>
 
       <div class="comparison-grid">
         <div class="comp-card saas">
@@ -376,6 +382,14 @@
   <!-- FAQ -->
   <div class="faq">
     <h2>Straight Answers</h2>
+    <details>
+      <summary>How do I know what to charge?</summary>
+      <p>That's exactly what these engines compute. You type in what you pay in wages, what your overhead costs, and what your materials run &mdash; the sheet calculates the rate you must bill to actually make money, then prices every job from it. No more copying the guy down the road, and no more hoping the number in your head still covers this year's insurance.</p>
+    </details>
+    <details>
+      <summary>I don't use any software &mdash; is this still for me?</summary>
+      <p>Especially you. Most owners price from their head, a notebook, or a spreadsheet somebody made years ago. The engine replaces the guessing, not an app: any small or medium business that quotes jobs, services customers, sells products, or crafts things can run its numbers through one of these. And if your trade isn't one of the four, custom builds start at $400.</p>
+    </details>
     <details>
       <summary>What is "SaaS fatigue" — and is a spreadsheet really the fix?</summary>
       <p>SaaS fatigue is what small business owners call the pile-up of rising subscription costs, unused seats and features, and lock-in — stop paying and your own data disappears. For a one-to-three-person shop, pricing, quoting and job costing is <em>math</em>, and a purpose-built Excel file does that math without a monthly fee. These engines are that file: price book, quote builder, job log and profit dashboard, validated by 750+ automated formula checks.</p>
