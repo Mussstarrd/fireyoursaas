@@ -529,8 +529,8 @@
       <input id="cmPhone" type="tel" autocomplete="tel" placeholder="I'll call you back">
       <label for="cmMsg">Anything else? (optional)</label>
       <textarea id="cmMsg" rows="3" placeholder="e.g. I price jobs out of a notebook and I'm pretty sure I'm leaving money on the table."></textarea>
-      <button class="cm-send" onclick="cmSend()">&#9993; Open My Email &amp; Send</button>
-      <div class="cm-alt">Opens your mail app with everything filled in &mdash; or just email <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);">info@fireyoursaas.us</a></div>
+      <button class="cm-send" id="cmSendB" onclick="cmSend()">Send It &rarr;</button>
+      <div class="cm-alt">Goes straight to my inbox &mdash; or email me yourself: <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);">info@fireyoursaas.us</a></div>
     </div>
   </div>
 </div>
@@ -563,7 +563,11 @@ function cmClose(){document.getElementById("cm").classList.remove("open");docume
 function cmSend(){var t=document.getElementById("cmTrade").value,w=document.getElementById("cmWant").value,n=document.getElementById("cmName").value,p=document.getElementById("cmPhone").value,m=document.getElementById("cmMsg").value;
 var s="Inquiry: "+w+(t?" - "+t:"");
 var b="Trade/business: "+(t||"(not picked)")+"\nLooking for: "+w+(n?"\nName: "+n:"")+(p?"\nPhone (call back): "+p:"")+(m?"\n\n"+m:"")+"\n\n(sent from fireyoursaas.us)";
-location.href="mailto:info@fireyoursaas.us?subject="+encodeURIComponent(s)+"&body="+encodeURIComponent(b);}
+var btn=document.getElementById("cmSendB");btn.disabled=true;btn.textContent="Sending\u2026";
+fetch("https://formsubmit.co/ajax/info@fireyoursaas.us",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({_subject:s,_template:"table",_captcha:"false",trade:t||"(not picked)",looking_for:w,name:n,phone_callback:p,message:m,source:"fireyoursaas.us intake"})})
+.then(function(r){if(!r.ok)throw 0;return r.json();})
+.then(function(){btn.textContent="\u2713 Sent \u2014 I'll get back to you";setTimeout(function(){cmClose();btn.disabled=false;btn.textContent="Send It \u2192";},1600);})
+.catch(function(){btn.disabled=false;btn.textContent="Send It \u2192";location.href="mailto:info@fireyoursaas.us?subject="+encodeURIComponent(s)+"&body="+encodeURIComponent(b);});}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){var c=document.getElementById("cm");if(c.classList.contains("open"))cmClose();}});
 (function(){
 var w=document.getElementById("lbImgWrap"),m=document.getElementById("lbImg"),st=null;
