@@ -212,6 +212,13 @@
   .hero-alt { font-size: 15px !important; color: #C9D6E8 !important; margin: 10px auto 0 !important; }
   .hero-alt b { color: #FFFFFF; }
 
+  /* Hero doors */
+  .hd { max-width: 720px; margin: 0 auto; text-align: left; }
+  .hd details { background: var(--navy-light); border: 1px solid rgba(255,255,255,.18); border-radius: 6px; margin-bottom: 8px; }
+  .hd summary { cursor: pointer; padding: 11px 15px; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #FDBA74; list-style-position: inside; }
+  .hd summary:hover { color: #FFFFFF; }
+  .hd details p { padding: 0 15px 13px; font-size: 15.5px; color: #E2E8F0; line-height: 1.5; }
+
   /* Hero proof demo */
   .proof { margin: 22px auto 0; background: var(--navy-light); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; padding: 16px 18px 12px; max-width: 720px; }
   .proof-cols { display: flex; gap: 18px; align-items: stretch; flex-wrap: wrap; }
@@ -270,8 +277,16 @@
   <div class="hero">
     <h1>Fire Your <span class="saas">S<em>aaS</em></span>.</h1>
 
-    <p>Got SaaS fatigue? Generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. <strong>These are purpose-built back-office systems in a single Excel file you own</strong> — price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's.</p>
-    <p class="hero-alt"><b>Never paid for business software in your life?</b> Nearly any small/medium business can discover senselessly lost profits in their margins using this engine.</p>
+    <div class="hd">
+      <details>
+        <summary>SaaS fatigue? Tap here.</summary>
+        <p>Rising subscription costs, unused seats, feature lock-in &mdash; generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. And the day you stop paying, your price book, your customer history, all of it &mdash; gone. <strong>These are purpose-built back-office systems in a single Excel file you own outright:</strong> price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's. No login, no renewal, no hostage data.</p>
+      </details>
+      <details>
+        <summary>Never paid for business software in your life? This is for you.</summary>
+        <p>No apps here. It's one Excel file. You type in what you pay for your time, your parts, your doohickeys and schlobberknockers &mdash; and it tells you what to charge so you actually get paid. Nearly any small or medium business that quotes jobs, services customers, sells products, or crafts things can discover senselessly lost profits hiding in its margins. If your prices live in your head or a notebook, you're exactly who this was built for.</p>
+      </details>
+    </div>
 
     <div class="proof" aria-label="Live example from the HVAC engine">
       <div class="proof-cols">
