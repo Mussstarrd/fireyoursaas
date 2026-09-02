@@ -119,12 +119,14 @@
   .lb { position:fixed; inset:0; background:rgba(10,16,28,.96); z-index:1000; display:none; flex-direction:column; }
   .lb.open { display:flex; }
   .lb-img { flex:1; display:flex; min-height:0; padding:8px; overflow:auto; -webkit-overflow-scrolling:touch; }
-  .lb-img img { margin:auto; max-width:100%; max-height:100%; object-fit:contain; border-radius:4px; cursor:zoom-in; }
+  .lb-frame { margin:auto; max-width:100%; display:flex; flex-direction:column; }
+  .lb-img img { display:block; max-width:100%; max-height:calc(100vh - 260px); object-fit:contain; cursor:zoom-in; }
+  .lb-capline { height:10px; background:var(--accent); border-radius:0 0 6px 6px; }
   .lb-img.zoomed img { max-width:none; max-height:none; cursor:zoom-out; }
   .lb-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:16px; }
   .lb button { background:rgba(255,255,255,.12); border:none; color:#fff; font-size:20px; padding:8px 18px; border-radius:6px; cursor:pointer; }
-  .lb .lb-x { font-size:16px; }
-  .lb-cap { background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(19px,4.5vw,28px); text-align:center; padding:10px 16px; line-height:1.15; }
+  .lb .lb-x { font-size:17px; font-weight:700; background:var(--accent); }
+  .lb-cap { background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(19px,4.5vw,28px); text-align:center; padding:10px 16px; line-height:1.15; border-radius:6px 6px 0 0; }
 
   .card-hook { font-size: 13.5px; color: var(--muted); line-height: 1.4; margin-bottom: 16px; flex-grow: 1; }
   .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,.22); padding-top: 12px; }
@@ -476,22 +478,22 @@
 </div>
 <div class="lb" id="lb" onclick="if(event.target===this)lbClose()">
   <div class="lb-bar"><button class="lb-x" onclick="lbClose()">✕ Close</button><span id="lbN"></span><span style="width:90px"></span></div>
-  <div class="lb-cap" id="lbCap"></div>
-  <div class="lb-img" id="lbImgWrap"><img id="lbImg" src="" alt="Screenshot full screen"></div>
+  <div class="lb-img" id="lbImgWrap"><div class="lb-frame"><div class="lb-cap" id="lbCap"></div><img id="lbImg" src="" alt="Screenshot full screen"><div class="lb-capline"></div></div></div>
   <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button id="lbZoomB" onclick="lbZoom(0.5,0.6)">&#128269; Magnify</button><button onclick="lbNav(1)">Next ›</button></div>
 </div>
 <script>
 var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Set up once, quote forever"},{f:"02.jpg",c:"A driveway quote in under a minute"},{f:"03.jpg",c:"One screen tells you if you\u2019re making money"},{f:"04.jpg",c:"What your tech\u2019s hour really costs"},{f:"05.jpg",c:"Parts priced with sliding-scale markups"},{f:"06.jpg",c:"Your whole flat-rate price book, from YOUR numbers"},{f:"07.jpg",c:"A customer-ready quote with Good / Better / Best"},{f:"08.jpg",c:"Quoted vs actual, job by job"}]};
 var lbG=null,lbI=0;
-function lbShow(){lbUnzoom();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=3";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
-function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({fys:1},"");}
+function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=3";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
+function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({l:1},"");}
 function lbCloseUI(){lbUnzoom();document.getElementById("lb").classList.remove("open");document.body.style.overflow="";}
-function lbClose(){lbCloseUI();if(history.state&&history.state.fys){lbIgnorePop=true;history.back();}}
-var lbIgnorePop=false;
-window.addEventListener("popstate",function(){if(lbIgnorePop){lbIgnorePop=false;return;}var el=document.getElementById("lb");if(!el.classList.contains("open"))return;if(lbZmd){lbUnzoom();history.pushState({fys:1},"");}else{lbCloseUI();}});
+function lbClose(){var d=(history.state&&history.state.l)||0;lbCloseUI();if(d===1){lbPopSkip++;history.back();}else if(d===2){lbPopSkip++;history.go(-2);}}
+function lbZoomOff(){var z=lbZmd;lbUnzoom();if(z&&history.state&&history.state.l===2){lbPopSkip++;history.back();}}
+var lbPopSkip=0;
+window.addEventListener("popstate",function(){if(lbPopSkip>0){lbPopSkip--;return;}var el=document.getElementById("lb");if(!el.classList.contains("open"))return;if(lbZmd){lbUnzoom();}else{lbCloseUI();}});
 var lbZmd=false;
 function lbUnzoom(){lbZmd=false;var w=document.getElementById("lbImgWrap"),m=document.getElementById("lbImg");w.classList.remove("zoomed");m.style.width="";w.scrollLeft=0;w.scrollTop=0;var b=document.getElementById("lbZoomB");if(b)b.textContent="\uD83D\uDD0D Magnify";}
-function lbZoom(fx,fy){var w=document.getElementById("lbImgWrap"),m=document.getElementById("lbImg");if(lbZmd){lbUnzoom();return;}lbZmd=true;w.classList.add("zoomed");var nw=m.naturalWidth||1280;var tw=Math.min(Math.max(nw,window.innerWidth*1.8),nw*2);m.style.width=tw+"px";requestAnimationFrame(function(){w.scrollLeft=fx*m.clientWidth-w.clientWidth/2;w.scrollTop=fy*m.clientHeight-w.clientHeight/2;});var b=document.getElementById("lbZoomB");if(b)b.textContent="\u21A9 Fit";}
+function lbZoom(fx,fy){var w=document.getElementById("lbImgWrap"),m=document.getElementById("lbImg");if(lbZmd){lbZoomOff();return;}lbZmd=true;w.classList.add("zoomed");var nw=m.naturalWidth||1280;var tw=Math.min(Math.max(nw,window.innerWidth*1.8),nw*2);m.style.width=tw+"px";requestAnimationFrame(function(){w.scrollLeft=fx*m.clientWidth-w.clientWidth/2;w.scrollTop=fy*m.clientHeight-w.clientHeight/2;});var b=document.getElementById("lbZoomB");if(b)b.textContent="\u21A9 Fit";history.pushState({l:2},"");}
 document.getElementById("lbImg").addEventListener("click",function(e){var r=this.getBoundingClientRect();lbZoom((e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height);});
 function lbNav(d){var n=GALS[lbG].length;lbI=(lbI+d+n)%n;lbShow();}
 document.addEventListener("keydown",function(e){if(!document.getElementById("lb").classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowRight")lbNav(1);if(e.key==="ArrowLeft")lbNav(-1);});
