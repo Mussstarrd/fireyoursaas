@@ -305,8 +305,8 @@
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$125.05 flat</div><small>capacitor swap, margin protected &mdash; 9pm Sunday on a roof: $206.33, automatic</small></div>
         </div>
         <div class="gal-box"><div class="gal-lbl">See inside</div><div class="gal" aria-label="Screenshots">
-          <button onclick="lbOpen('hvac',1)"><img loading="lazy" src="covers/hvac/02.jpg" alt="HVAC quoting spreadsheet — Quick Quote tab, driveway quote in under a minute"></button>
-          <button onclick="lbOpen('hvac',5)"><img loading="lazy" src="covers/hvac/06.jpg" alt="HVAC flat-rate price book builder — standard, after-hours and attic pricing"><span class="more">+6 more</span></button>
+          <button onclick="lbOpen('hvac',2)"><img loading="lazy" src="covers/hvac/03.jpg" alt="HVAC quoting spreadsheet — Quick Quote tab, driveway quote in under a minute"></button>
+          <button onclick="lbOpen('hvac',8)"><img loading="lazy" src="covers/hvac/09.jpg" alt="HVAC flat-rate price book — standard, 9pm Sunday and rooftop prices per task"><span class="more">+7 more</span></button>
         </div>
         <button class="btn-slides" onclick="lbOpen('hvac',0)">&#9654; Watch the 8-slide walkthrough &mdash; full screen</button></div>
         <div class="card-footer">
@@ -490,9 +490,9 @@
   <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button id="lbZoomB" onclick="lbZoom(0.5,0.6)">&#128269; Magnify</button><button onclick="lbNav(1)">Next ›</button></div>
 </div>
 <script>
-var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Set up once, quote forever"},{f:"02.jpg",c:"A driveway quote in under a minute"},{f:"03.jpg",c:"One screen tells you if you\u2019re making money"},{f:"04.jpg",c:"What your tech\u2019s hour really costs"},{f:"05.jpg",c:"Parts priced with sliding-scale markups"},{f:"06.jpg",c:"Your whole flat-rate price book, from YOUR numbers"},{f:"07.jpg",c:"A customer-ready quote with Good / Better / Best"},{f:"08.jpg",c:"Quoted vs actual, job by job"}]};
+var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Prime it once. 20 minutes."},{f:"02.jpg",c:"Run the day, or open the engine room"},{f:"03.jpg",c:"A driveway quote in under a minute"},{f:"04.jpg",c:"One screen tells you if you're making money"},{f:"05.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"06.jpg",c:"Quoted vs actual, job by job"},{f:"07.jpg",c:"Every dial in one place"},{f:"08.jpg",c:"Buy it once, mark it up right forever"},{f:"09.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"}]};
 var lbG=null,lbI=0;
-function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=3";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
+function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=4";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
 function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({l:1},"");}
 function lbCloseUI(){lbUnzoom();document.getElementById("lb").classList.remove("open");document.body.style.overflow="";}
 function lbClose(){var d=(history.state&&history.state.l)||0;lbCloseUI();if(d===1){lbPopSkip++;history.back();}else if(d===2){lbPopSkip++;history.go(-2);}}
