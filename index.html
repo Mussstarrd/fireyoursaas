@@ -37,6 +37,7 @@
 {"@type":"Question","name":"What do the 750+ automated checks actually check?","acceptedAnswer":{"@type":"Answer","text":"The hard part of pricing is not one formula - it is the web of them. Your wage feeds a loaded rate, the loaded rate feeds every task, parts feed markups, surcharges stack on top - and one wrong link anywhere means every price downstream quietly leaks money. The 750+ checks prove every connection holds: a $28/hr wage must compute to exactly $114.09/hr loaded, an after-hours flag must reprice the whole job, the margin flag must trip at exactly 45%, and the quick quote and customer quote must agree to the penny. Every number is wired to every other number and the wiring is proven, so the price that comes out protects your margin instead of guessing. If one connection fails, the file does not ship."}},
 {"@type":"Question","name":"Do I need anything besides Excel? Any macros to enable?","acceptedAnswer":{"@type":"Answer","text":"No. Zero macros, no login, no internet connection required. The engines run in desktop Excel or Google Sheets and work offline in a driveway. That\u2019s deliberate: a lot of spreadsheet tools this deep are riddled with macros — .xlsm files that trip Excel's security warnings and get blocked or stripped by email filters. These are plain .xlsx files, small enough to email to your phone, your accountant, or the shop laptop with zero warnings and nothing to enable."}},
 {"@type":"Question","name":"Is there a subscription or recurring fee?","acceptedAnswer":{"@type":"Answer","text":"No. Trade engines are $75 one-time, the Crafters Pricing Engine is $50 one-time. You own the file outright, forever."}},
+{"@type":"Question","name":"What if it does not work for me?","acceptedAnswer":{"@type":"Answer","text":"14-day money-back guarantee. If the math does not work as shown, email info@fireyoursaas.us and you get a full refund through Gumroad."}},
 {"@type":"Question","name":"My trade isn't one of the four — can I still get one?","acceptedAnswer":{"@type":"Answer","text":"Yes. Custom pricing and job-costing engines start at $400 to adapt an existing engine to your trade; ground-up builds for a new vertical are scoped on one 15-minute call with a fixed fee quoted before any work starts."}}
 ]}
 </script>
@@ -72,6 +73,12 @@
     line-height: 1.0; letter-spacing: -0.01em; margin-bottom: 14px; text-align: center;
   }
   h1 .saas em { font-style: normal; color: var(--accent); text-decoration: underline wavy 3px; text-underline-offset: 8px; }
+  .brandline { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .04em; color: #C9D6E8; margin-bottom: 4px; }
+  .brandline em { font-style: normal; color: var(--accent); }
+  .sub1 { text-align: center; font-size: 17.5px; color: #E2E8F0; max-width: 680px; margin: 0 auto 8px; line-height: 1.45; }
+  .sub1 b { color: #FFFFFF; }
+  .sub2 { text-align: center; font-size: 15px; color: #C9D6E8; max-width: 640px; margin: 0 auto; }
+  .sub2 b { color: #FDBA74; }
   .hero p { font-size: 18px; color: #E2E8F0; max-width: 720px; line-height: 1.45; margin-left: auto; margin-right: auto; text-align: center; }
   .hero p strong { color: #FFF; font-weight: 700; }
 
@@ -93,6 +100,8 @@
   /* Cards */
   .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; align-items: start; }
   details.card > summary { cursor: pointer; list-style: none; position: relative; padding-right: 26px; }
+  .sump { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: #FDBA74; }
+  details.card[open] .sump { display: none; }
   details.card > summary::-webkit-details-marker { display: none; }
   details.card > summary::after { content: "+"; position: absolute; right: 0; top: 50%; transform: translateY(-55%); color: var(--accent); font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; }
   details.card[open] > summary::after { content: "\2013"; }
@@ -122,7 +131,10 @@
   .gal img { width:100%; height:104px; object-fit:cover; object-position:left top; display:block; }
   .gal .more { position:absolute; inset:0; background:rgba(19,41,75,.55); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
   .gal-hint { font-size:11px; color:var(--muted); margin:-8px 0 10px; }
-  .sig { text-align:center; padding:26px 36px 8px; font-family:'Barlow Condensed',sans-serif; font-size:clamp(19px,3vw,24px); font-weight:700; color:var(--navy); line-height:1.3; }
+  .closer { background: var(--navy); text-align: center; padding: 26px 20px 30px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .closer-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; color: #FFFFFF; }
+  a.closer-buy { background: var(--accent); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; text-decoration: none; padding: 13px 24px; border-radius: 5px; }
+  .sig { text-align: center; padding:26px 36px 8px; font-family:'Barlow Condensed',sans-serif; font-size:clamp(19px,3vw,24px); font-weight:700; color:var(--navy); line-height:1.3; }
   .sig em { font-style:normal; color:var(--accent); }
   .sig span { display:block; margin-top:6px; font-size:15px; color:var(--muted); font-weight:600; }
   .gal-one { display:block; width:100%; border:1px solid rgba(255,255,255,.28); border-radius:6px; overflow:hidden; padding:0; background:none; cursor:pointer; margin:2px 0 14px; }
@@ -153,7 +165,7 @@
   .price-tag small { font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 400; color: #B8C6DC; }
   .btn-download {
     background: var(--accent); color: #FFF; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
-    padding: 6px 14px; border-radius: 4px; text-decoration: none; text-transform: uppercase; display: inline-block;
+    padding: 11px 16px; border-radius: 4px; text-decoration: none; text-transform: uppercase; display: inline-block;
   }
   .btn-download:hover { background: #C74E15; }
 
@@ -168,6 +180,7 @@
   .cohort-strip .fine { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 
   /* Comparison box */
+  .guar { text-align: center; background: var(--green-bg); border: 1px solid #86EFAC; color: var(--green-text); border-radius: 6px; padding: 11px 14px; font-weight: 700; font-size: 14.5px; margin: -8px 0 18px; }
   .bridge { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: clamp(20px, 4vw, 26px); font-weight: 700; color: var(--navy); margin: -8px 0 18px; }
   .bridge b { color: var(--accent); }
   .comparison-box { background: var(--navy); color: #FFF; border-radius: 6px; padding: 24px; margin-bottom: 30px; }
@@ -280,18 +293,10 @@
 
   <!-- Hero -->
   <div class="hero">
-    <h1>Fire Your <span class="saas">S<em>aaS</em></span>.</h1>
-
-    <div class="hd">
-      <details>
-        <summary>SaaS fatigue? Tap here.</summary>
-        <p>Rising subscription costs, unused seats, feature lock-in &mdash; generic software-"as-a-service" charges $588 to $1,788 a year, forever, to do math a good spreadsheet does better. And the day you stop paying, your price book, your customer history, all of it &mdash; gone. <strong>These are purpose-built back-office systems in a single Excel file you own outright:</strong> price book, quote machine, customer &amp; job history, profit dashboard. Built for your trade, not everyone's. No login, no renewal, no hostage data.</p>
-      </details>
-      <details>
-        <summary>Never paid for business software in your life? This is for you.</summary>
-        <p>No apps here. It's one Excel file. You type in what you pay for your time, your parts, your doohickeys and schlobberknockers &mdash; and it tells you what to charge so you actually get paid. Nearly any small or medium business that quotes jobs, services customers, sells products, or crafts things will discover senselessly lost profits hiding in its margins &mdash; without changing a damn thing about how you work. If your prices live in your head or a notebook, you're exactly who this was built for.</p>
-      </details>
-    </div>
+    <div class="brandline">fireyour<em>SaaS</em></div>
+    <h1>Stop guessing what to charge.</h1>
+    <p class="sub1">Purpose-built pricing, quoting &amp; job-costing engines in <b>a single Excel file you own</b>. $50&ndash;$75 once &mdash; no subscription, no login, zero macros.</p>
+    <p class="sub2">Never paid for business software in your life? <b>Especially you</b> &mdash; this replaces the guessing, not an app.</p>
 
     <div class="proof" aria-label="Live example from the HVAC engine">
       <div class="proof-cols">
@@ -314,8 +319,8 @@
   <!-- Metrics strip -->
   <div class="strip">
     <div class="metric-box">
-      <div class="metric-val">A FRACTION</div>
-      <div class="metric-lbl">Of SaaS Cost · One-Time · Own It Forever</div>
+      <div class="metric-val">$50&ndash;$75</div>
+      <div class="metric-lbl">One-Time &middot; vs $588&ndash;$1,788/yr SaaS &middot; Own It Forever</div>
     </div>
     <div class="metric-box">
       <div class="metric-val">20 MIN</div>
@@ -329,14 +334,14 @@
 
   <!-- Products -->
   <div class="section-body">
-    <h2 class="section-title">Trade Pricing &amp; Job-Costing Systems</h2>
+    <h2 class="section-title" id="engines">Trade Pricing &amp; Job-Costing Systems</h2>
     <div class="section-subtitle"><strong style="color:var(--ink);">Each engine is one Excel file. Open it, type your costs into the blue cells, and it tells you what to charge.</strong> Under the hood it's a mini CRM plus a live bill-of-materials tracker for a shop of one &mdash; gray cells calculate loaded costs, fee stacks, and profit guardrails. <b style="color:var(--ink);">Tap an engine to open it &mdash; or scroll straight to the custom shop below.</b></div>
 
     <div class="grid-2x2">
 
       <!-- HVAC -->
       <details class="card">
-        <summary><div class="card-target">Heating &amp; Air — 1–2 Truck Shops</div><h3 class="card-title">HVAC Quoting Engine</h3></summary>
+        <summary><div class="card-target">Heating &amp; Air — 1–2 Truck Shops</div><h3 class="card-title">HVAC Quoting Engine</h3><span class="sump">$75</span></summary>
         <div class="lw">
           <div class="lw-cell loss"><span class="lw-tag">Guessing by gut</span><div class="lw-big">under $114.09/hr</div><small>your true cost to roll a truck &mdash; bill less and you're paying to work</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$125.05 flat</div><small>capacitor swap, margin protected &mdash; 9pm Sunday on a roof: $206.33, automatic</small></div>
@@ -344,39 +349,39 @@
         <button class="gal-one" onclick="lbOpen('hvac',0)"><img loading="lazy" src="covers/hvac/01.jpg?v=6" alt="HVAC engine walkthrough — the whole system in five lines"><span class="gal-one-cta">&#9654; See it in action &mdash; 9-slide walkthrough</span></button>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
-          <a class="btn-download" href="https://fennster322.gumroad.com/l/hvac">Find Out More &rarr;</a>
+          <a class="btn-download" href="https://fennster322.gumroad.com/l/hvac">Get the HVAC Engine &mdash; $75 &rarr;</a>
         </div>
       </details>
 
       <!-- Electrical -->
       <details class="card">
-        <summary><div class="card-target">Electricians — Solo &amp; Side-Work</div><h3 class="card-title">Electrical Quoting Engine</h3></summary>
+        <summary><div class="card-target">Electricians — Solo &amp; Side-Work</div><h3 class="card-title">Electrical Quoting Engine</h3><span class="sump">$75</span></summary>
         <div class="lw">
           <div class="lw-cell loss"><span class="lw-tag">Buddy math</span><div class="lw-big">$285 panel</div><small>marked up like a $2 wire nut &mdash; side work priced on friendship</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$2,425.51</div><small>200A panel swap quoted flat &mdash; burdened rate, markup brackets, 15% contingency built in</small></div>
         </div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
-          <a class="btn-download" href="#" onclick="cmOpen('Electrical');return false;">Ask About This One &rarr;</a>
+          <a class="btn-download" href="#" onclick="cmOpen('Electrical');return false;">Launching soon &mdash; ask about it &rarr;</a>
         </div>
       </details>
 
       <!-- Welding -->
       <details class="card">
-        <summary><div class="card-target">Mobile Welders &amp; Small Fab</div><h3 class="card-title">Welding Quoting Engine</h3></summary>
+        <summary><div class="card-target">Mobile Welders &amp; Small Fab</div><h3 class="card-title">Welding Quoting Engine</h3><span class="sump">$75</span></summary>
         <div class="lw">
           <div class="lw-cell loss"><span class="lw-tag">Billed hourly</span><div class="lw-big">$62.25</div><small>30-min re-tack, 14 miles out &mdash; the drive ate the profit</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$175.00 min</div><small>enforced call-out minimum &mdash; a $284/hr realized rate, flagged GREEN</small></div>
         </div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
-          <a class="btn-download" href="#" onclick="cmOpen('Welding / Fabrication');return false;">Ask About This One &rarr;</a>
+          <a class="btn-download" href="#" onclick="cmOpen('Welding / Fabrication');return false;">Launching soon &mdash; ask about it &rarr;</a>
         </div>
       </details>
 
       <!-- Crafters -->
       <details class="card featured">
-        <summary><div class="card-target">Handmade Sellers — Etsy &amp; Craft Fairs</div><h3 class="card-title">Crafters Pricing Engine</h3></summary>
+        <summary><div class="card-target">Handmade Sellers — Etsy &amp; Craft Fairs</div><h3 class="card-title">Crafters Pricing Engine</h3><span class="sump">$50</span></summary>
         <div class="lw">
           <div class="lw-cell loss"><span class="lw-tag">Priced by feel</span><div class="lw-big">&#9888; LOSES MONEY</div><small>the Offsite Ads trap most sellers find in their bank account</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$20.00</div><small>shelf price with 25% net after wax, labor and every Etsy fee</small></div>
@@ -384,11 +389,13 @@
         <button class="gal-one" onclick="lbOpen('crafters',0)"><img loading="lazy" src="covers/crafters/01.jpg" alt="Crafters engine walkthrough — 5 steps, 30 minutes"><span class="gal-one-cta">&#9654; See it in action &mdash; 7-slide walkthrough</span></button>
         <div class="card-footer">
           <div class="price-tag">$50 <small>one-time</small></div>
-          <a class="btn-download" href="https://fennster322.gumroad.com/l/crafters">Find Out More &rarr;</a>
+          <a class="btn-download" href="https://fennster322.gumroad.com/l/crafters">Get the Crafters Engine &mdash; $50 &rarr;</a>
         </div>
       </details>
 
     </div>
+
+    <div class="guar">14-DAY MONEY-BACK GUARANTEE &mdash; if the math doesn&rsquo;t work as shown, email me and you get every dollar back through Gumroad. No forms, no fight.</div>
 
     <div class="bridge">Close, but no cigar? <b>Have a custom solution built.</b> &darr;</div>
 
@@ -423,7 +430,7 @@
             <li><strong>One flat build fee.</strong> No monthly subscriptions ever</li>
             <li>Built 100% around your supplies, crew, and rates</li>
             <li>Runs offline in the field; a tiny <strong>macro-free .xlsx</strong> you can email anywhere &mdash; no security warnings, nothing to enable</li>
-            <li>Validated by 140–220 automated formula tests before delivery</li>
+            <li>Validated by its own 140–220 automated tests — 750+ across the shipped line</li>
           </ul>
         </div>
       </div>
@@ -466,6 +473,10 @@
       <p>No. Trade engines are $75 one-time, the Crafters Pricing Engine is $50 one-time. You own the file outright, forever.</p>
     </details>
     <details>
+      <summary>What if it doesn't work for me?</summary>
+      <p>14-day money-back guarantee. If the math doesn't work as shown, email <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);">info@fireyoursaas.us</a> and you get a full refund through Gumroad. No forms, no fight.</p>
+    </details>
+    <details>
       <summary>My trade isn't one of the four — can I still get one?</summary>
       <p>Yes. Custom pricing and job-costing engines start at <b>$400</b> to adapt an existing engine to your trade; ground-up builds for a new vertical are scoped on one 15-minute call, with a fixed fee quoted before any work starts.</p>
     </details>
@@ -473,8 +484,14 @@
 
   <div class="sig">&ldquo;One wrong number and every price downstream <em>quietly leaks money</em>. Nails, staples, bolts, wire caps, beads &mdash; cents equal dollars equal lost profits.&rdquo;<span>&mdash; Jeff F., fireyour<em>SaaS</em></span></div>
 
+  <div class="closer">
+    <div class="closer-title">Ready to stop guessing?</div>
+    <a class="closer-buy" href="#engines">Get an engine &mdash; $50&ndash;$75, once</a>
+    <button class="btn-contact" onclick="cmOpen('')">Or start the 2-minute intake &rarr;</button>
+  </div>
+
   <div class="compliance">
-    <span class="brand">fireyour<em>SaaS</em></span> · Veteran-owned, Locust Grove VA · 1832 Kempsville Rd, Ste 112 #458, Virginia Beach, VA 23464 · If you received an email, it's because your business is listed publicly in the Locust Grove VA area; reply STOP to any email and you won't hear from me again. Prices in USD. The engines are pricing tools, not financial advice — you set your own rates.
+    <span class="brand">fireyour<em>SaaS</em></span> · Veteran-owned, Locust Grove VA · 1832 Kempsville Rd, Ste 112 #458, Virginia Beach, VA 23464 Prices in USD. The engines are pricing tools, not financial advice — you set your own rates.
   </div>
 
 
