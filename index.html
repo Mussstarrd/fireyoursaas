@@ -169,6 +169,10 @@
   .compliance { font-size: 12px; color: var(--muted); padding: 18px 36px 26px; border-top: 1px solid var(--border); }
   .ph { background: var(--red-bg); color: var(--red-text); padding: 0 4px; font-weight: 700; }
 
+  /* Slide walkthrough button */
+  .btn-slides { display:block; width:100%; margin:-2px 0 14px; padding:9px 12px; background:var(--accent-glow); border:1.5px solid var(--accent); border-radius:4px; color:var(--accent); font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; }
+  .btn-slides:hover { background:var(--accent); color:#fff; }
+
   /* Loss vs win verdict cells */
   .lw { display:flex; gap:8px; margin:0 0 12px; flex-wrap:wrap; }
   .lw-cell { flex:1 1 45%; min-width:150px; border-radius:5px; padding:9px 12px 10px; }
@@ -253,7 +257,7 @@
   <!-- Products -->
   <div class="section-body">
     <h2 class="section-title">Trade Pricing &amp; Job-Costing Systems</h2>
-    <div class="section-subtitle">Each one is a mini CRM plus a live bill-of-materials tracker for a shop of one. Blue cells are your live inputs; gray cells calculate loaded costs, fee stacks, and profit guardrails.</div>
+    <div class="section-subtitle"><strong style="color:var(--ink);">Each engine is one Excel file. Open it, type your costs into the blue cells, and it tells you what to charge.</strong> Under the hood it's a mini CRM plus a live bill-of-materials tracker for a shop of one &mdash; gray cells calculate loaded costs, fee stacks, and profit guardrails.</div>
 
     <div class="grid-2x2">
 
@@ -269,7 +273,7 @@
           <button onclick="lbOpen('hvac',1)"><img loading="lazy" src="covers/hvac/02.jpg" alt="HVAC quoting spreadsheet — Quick Quote tab, driveway quote in under a minute"></button>
           <button onclick="lbOpen('hvac',5)"><img loading="lazy" src="covers/hvac/06.jpg" alt="HVAC flat-rate price book builder — standard, after-hours and attic pricing"><span class="more">+6 more</span></button>
         </div>
-        <div class="gal-hint">Tap a screenshot to view full screen</div>
+        <button class="btn-slides" onclick="lbOpen('hvac',0)">&#9654; Watch the 8-slide walkthrough &mdash; full screen</button>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/hvac">Find Out More &rarr;</a>
@@ -316,7 +320,7 @@
           <button onclick="lbOpen('crafters',1)"><img loading="lazy" src="covers/crafters/02.jpg" alt="Handmade pricing dashboard — net margin, real hourly wage, breakeven"></button>
           <button onclick="lbOpen('crafters',5)"><img loading="lazy" src="covers/crafters/06.jpg" alt="Craft fair booth fee breakeven planner"><span class="more">+5 more</span></button>
         </div>
-        <div class="gal-hint">Tap a screenshot to view full screen</div>
+        <button class="btn-slides" onclick="lbOpen('crafters',0)">&#9654; Watch the 7-slide walkthrough &mdash; full screen</button>
         <div class="card-footer">
           <div class="price-tag">$50 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/crafters">Find Out More &rarr;</a>
