@@ -211,6 +211,21 @@
   @keyframes tada { from { transform: scale(.6); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .pcell.out { animation: none; } }
 
+  /* Contact modal */
+  .cm { position:fixed; inset:0; background:rgba(10,16,28,.7); z-index:1100; display:none; align-items:center; justify-content:center; padding:16px; }
+  .cm.open { display:flex; }
+  .cm-card { background:#fff; border-radius:8px; max-width:430px; width:100%; max-height:92vh; overflow:auto; box-shadow:0 20px 50px rgba(0,0,0,.4); }
+  .cm-head { background:var(--navy); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .cm-x { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; padding:2px 6px; }
+  .cm-body { padding:14px 18px 18px; }
+  .cm-body label { display:block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:10px 0 4px; }
+  .cm-body select, .cm-body input, .cm-body textarea { width:100%; padding:9px 10px; border:1px solid var(--border); border-radius:4px; font-family:inherit; font-size:15px; background:var(--blue-cell); color:var(--ink); }
+  .cm-send { width:100%; margin-top:14px; background:var(--accent); color:#fff; border:none; border-radius:4px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
+  .cm-send:hover { background:#C74E15; }
+  .cm-alt { font-size:12.5px; color:var(--muted); margin-top:10px; text-align:center; }
+  .btn-contact { margin-top:8px; background:var(--accent); color:#fff; border:none; border-radius:4px; padding:9px 16px; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800; text-transform:uppercase; cursor:pointer; }
+  .btn-contact:hover { background:#C74E15; }
+
   /* FAQ */
   .faq { padding: 22px 36px 8px; border-top: 1px solid var(--border); }
   .faq h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 10px; }
@@ -304,7 +319,7 @@
         </div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
-          <a class="btn-download" href="#contact">Not Linked to Store Yet</a>
+          <a class="btn-download" href="#" onclick="cmOpen('Electrical');return false;">Ask About This One &rarr;</a>
         </div>
       </div>
 
@@ -318,7 +333,7 @@
         </div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
-          <a class="btn-download" href="#contact">Not Linked to Store Yet</a>
+          <a class="btn-download" href="#" onclick="cmOpen('Welding / Fabrication');return false;">Ask About This One &rarr;</a>
         </div>
       </div>
 
@@ -379,7 +394,7 @@
       </div>
       <div class="contact-detail">
         Jeff F.<br>
-        <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);text-decoration:none;">info@fireyoursaas.us</a>
+        <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);text-decoration:none;">info@fireyoursaas.us</a><br><button class="btn-contact" onclick="cmOpen('')">&#9993; Contact Us</button>
       </div>
     </div>
 
@@ -423,6 +438,42 @@
   </div>
 
 
+<div class="cm" id="cm" onclick="if(event.target===this)cmClose()">
+  <div class="cm-card">
+    <div class="cm-head">Tell me what you need<button class="cm-x" onclick="cmClose()">&#10005;</button></div>
+    <div class="cm-body">
+      <label for="cmTrade">Your trade / business</label>
+      <select id="cmTrade">
+        <option value="">Pick one&hellip;</option>
+        <option>HVAC / Heating &amp; Air</option>
+        <option>Electrical</option>
+        <option>Welding / Fabrication</option>
+        <option>Handmade / Crafts</option>
+        <option>Detailing</option>
+        <option>Lawn care / Landscaping</option>
+        <option>Cleaning</option>
+        <option>Food truck / Food service</option>
+        <option>Church / Non-profit</option>
+        <option>Childcare</option>
+        <option>Other / not listed</option>
+      </select>
+      <label for="cmWant">What are you after?</label>
+      <select id="cmWant">
+        <option>Buy a ready-made engine</option>
+        <option>Custom engine for my trade (from $400)</option>
+        <option>Adapt one of these engines to my trade</option>
+        <option>Question before I buy</option>
+        <option>Something else</option>
+      </select>
+      <label for="cmName">Name (optional)</label>
+      <input id="cmName" type="text" autocomplete="name">
+      <label for="cmMsg">Anything else? (optional)</label>
+      <textarea id="cmMsg" rows="3" placeholder="e.g. I price jobs out of a notebook and I'm pretty sure I'm leaving money on the table."></textarea>
+      <button class="cm-send" onclick="cmSend()">&#9993; Open My Email &amp; Send</button>
+      <div class="cm-alt">Opens your mail app with everything filled in &mdash; or just email <a href="mailto:info@fireyoursaas.us" style="color:var(--accent);">info@fireyoursaas.us</a></div>
+    </div>
+  </div>
+</div>
 <div class="lb" id="lb" onclick="if(event.target===this)lbClose()">
   <div class="lb-bar"><button class="lb-x" onclick="lbClose()">✕ Close</button><span id="lbN"></span><span style="width:90px"></span></div>
   <div class="lb-cap" id="lbCap"></div>
@@ -442,6 +493,13 @@ document.getElementById("lbImg").addEventListener("click",function(e){var r=this
 function lbNav(d){var n=GALS[lbG].length;lbI=(lbI+d+n)%n;lbShow();}
 document.addEventListener("keydown",function(e){if(!document.getElementById("lb").classList.contains("open"))return;if(e.key==="Escape")lbClose();if(e.key==="ArrowRight")lbNav(1);if(e.key==="ArrowLeft")lbNav(-1);});
 (function(){var x0=null,w=document.getElementById("lbImgWrap");w.addEventListener("touchstart",function(e){x0=e.touches[0].clientX;},{passive:true});w.addEventListener("touchend",function(e){if(x0===null)return;if(lbZmd){x0=null;return;}var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);x0=null;},{passive:true});})();
+function cmOpen(t){var s=document.getElementById("cmTrade");if(t){for(var i=0;i<s.options.length;i++){if(s.options[i].text.indexOf(t)===0){s.selectedIndex=i;break;}}}document.getElementById("cm").classList.add("open");document.body.style.overflow="hidden";}
+function cmClose(){document.getElementById("cm").classList.remove("open");document.body.style.overflow="";}
+function cmSend(){var t=document.getElementById("cmTrade").value,w=document.getElementById("cmWant").value,n=document.getElementById("cmName").value,m=document.getElementById("cmMsg").value;
+var s="Inquiry: "+w+(t?" - "+t:"");
+var b="Trade/business: "+(t||"(not picked)")+"\nLooking for: "+w+(n?"\nName: "+n:"")+(m?"\n\n"+m:"")+"\n\n(sent from fireyoursaas.us)";
+location.href="mailto:info@fireyoursaas.us?subject="+encodeURIComponent(s)+"&body="+encodeURIComponent(b);}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var c=document.getElementById("cm");if(c.classList.contains("open"))cmClose();}});
 </script>
 
 </div>
