@@ -507,13 +507,16 @@
       <label for="cmWant">What are you after?</label>
       <select id="cmWant">
         <option>Buy a ready-made engine</option>
-        <option>Custom engine for my trade (from $400)</option>
+        <option>Custom engine for my trade</option>
         <option>Adapt one of these engines to my trade</option>
         <option>Question before I buy</option>
+        <option>Request a call back</option>
         <option>Something else</option>
       </select>
       <label for="cmName">Name (optional)</label>
       <input id="cmName" type="text" autocomplete="name">
+      <label for="cmPhone">Phone (for a call back &mdash; optional)</label>
+      <input id="cmPhone" type="tel" autocomplete="tel" placeholder="I'll call you back">
       <label for="cmMsg">Anything else? (optional)</label>
       <textarea id="cmMsg" rows="3" placeholder="e.g. I price jobs out of a notebook and I'm pretty sure I'm leaving money on the table."></textarea>
       <button class="cm-send" onclick="cmSend()">&#9993; Open My Email &amp; Send</button>
@@ -547,9 +550,9 @@ var lbPinched=false;
 (function(){var x0=null,w=document.getElementById("lbImgWrap");w.addEventListener("touchstart",function(e){if(e.touches.length===1){lbPinched=false;}x0=e.touches[0].clientX;},{passive:true});w.addEventListener("touchend",function(e){if(x0===null)return;if(lbZmd||lbPinched){x0=null;return;}var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);x0=null;},{passive:true});})();
 function cmOpen(t){var s=document.getElementById("cmTrade");if(t){for(var i=0;i<s.options.length;i++){if(s.options[i].text.indexOf(t)===0){s.selectedIndex=i;break;}}}document.getElementById("cm").classList.add("open");document.body.style.overflow="hidden";}
 function cmClose(){document.getElementById("cm").classList.remove("open");document.body.style.overflow="";}
-function cmSend(){var t=document.getElementById("cmTrade").value,w=document.getElementById("cmWant").value,n=document.getElementById("cmName").value,m=document.getElementById("cmMsg").value;
+function cmSend(){var t=document.getElementById("cmTrade").value,w=document.getElementById("cmWant").value,n=document.getElementById("cmName").value,p=document.getElementById("cmPhone").value,m=document.getElementById("cmMsg").value;
 var s="Inquiry: "+w+(t?" - "+t:"");
-var b="Trade/business: "+(t||"(not picked)")+"\nLooking for: "+w+(n?"\nName: "+n:"")+(m?"\n\n"+m:"")+"\n\n(sent from fireyoursaas.us)";
+var b="Trade/business: "+(t||"(not picked)")+"\nLooking for: "+w+(n?"\nName: "+n:"")+(p?"\nPhone (call back): "+p:"")+(m?"\n\n"+m:"")+"\n\n(sent from fireyoursaas.us)";
 location.href="mailto:info@fireyoursaas.us?subject="+encodeURIComponent(s)+"&body="+encodeURIComponent(b);}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){var c=document.getElementById("cm");if(c.classList.contains("open"))cmClose();}});
 (function(){
