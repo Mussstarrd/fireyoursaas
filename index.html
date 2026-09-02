@@ -90,12 +90,12 @@
   .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
   @media(max-width: 720px) { .grid-2x2 { grid-template-columns: 1fr; } }
   .card {
-    background: #FFFFFF; border: 1px solid var(--border); border-top: 4px solid var(--navy-light);
-    border-radius: 6px; padding: 18px; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    background: var(--navy); border: 1px solid var(--navy-light); border-top: 4px solid #3E5C8F;
+    border-radius: 6px; padding: 18px; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(19,41,75,0.18);
   }
   .card.featured { border-top-color: var(--accent); }
-  .card-target { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-  .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); margin: 2px 0 10px; }
+  .card-target { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #FDBA74; }
+  .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: #FFFFFF; margin: 2px 0 10px; }
 
   .sheet-preview { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
   .sheet-preview th { background: var(--navy); color: #FFF; text-align: left; padding: 5px 8px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
@@ -108,10 +108,14 @@
 
   /* card gallery + lightbox */
   .gal { display:flex; gap:6px; margin:0 0 12px; }
-  .gal button { border:1px solid var(--border); padding:0; background:none; cursor:pointer; border-radius:4px; overflow:hidden; flex:1; position:relative; }
+  .gal button { border:1px solid rgba(255,255,255,.28); padding:0; background:none; cursor:pointer; border-radius:4px; overflow:hidden; flex:1; position:relative; }
   .gal img { width:100%; height:104px; object-fit:cover; object-position:left top; display:block; }
   .gal .more { position:absolute; inset:0; background:rgba(19,41,75,.55); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
   .gal-hint { font-size:11px; color:var(--muted); margin:-8px 0 10px; }
+  .gal-box { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.22); border-radius:6px; padding:10px; margin:2px 0 14px; }
+  .gal-box .gal { margin:0 0 8px; }
+  .gal-box .btn-slides { margin:0; }
+  .gal-lbl { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#9FB3D1; margin-bottom:6px; }
   .lb { position:fixed; inset:0; background:rgba(10,16,28,.96); z-index:1000; display:none; flex-direction:column; }
   .lb.open { display:flex; }
   .lb-img { flex:1; display:flex; min-height:0; padding:8px; overflow:auto; -webkit-overflow-scrolling:touch; }
@@ -123,14 +127,15 @@
   .lb-cap { background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(19px,4.5vw,28px); text-align:center; padding:10px 16px; line-height:1.15; }
 
   .card-hook { font-size: 13.5px; color: var(--muted); line-height: 1.4; margin-bottom: 16px; flex-grow: 1; }
-  .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
-  .price-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--navy); }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,.22); padding-top: 12px; }
+  .price-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: #FFFFFF; }
   .price-tag s { color: var(--muted); font-weight: 400; font-size: 18px; margin-right: 4px; }
-  .price-tag small { font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 400; color: var(--muted); }
+  .price-tag small { font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 400; color: #B8C6DC; }
   .btn-download {
-    background: var(--navy); color: #FFF; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
+    background: var(--accent); color: #FFF; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
     padding: 6px 14px; border-radius: 4px; text-decoration: none; text-transform: uppercase; display: inline-block;
   }
+  .btn-download:hover { background: #C74E15; }
 
   /* Founding cohort strip */
   .cohort-strip {
@@ -278,11 +283,11 @@
           <div class="lw-cell loss"><span class="lw-tag">Guessing by gut</span><div class="lw-big">under $114.09/hr</div><small>your true cost to roll a truck &mdash; bill less and you're paying to work</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$125.05 flat</div><small>capacitor swap, margin protected &mdash; 9pm Sunday reprices itself: $139.31</small></div>
         </div>
-        <div class="gal" aria-label="Screenshots">
+        <div class="gal-box"><div class="gal-lbl">See inside</div><div class="gal" aria-label="Screenshots">
           <button onclick="lbOpen('hvac',1)"><img loading="lazy" src="covers/hvac/02.jpg" alt="HVAC quoting spreadsheet — Quick Quote tab, driveway quote in under a minute"></button>
           <button onclick="lbOpen('hvac',5)"><img loading="lazy" src="covers/hvac/06.jpg" alt="HVAC flat-rate price book builder — standard, after-hours and attic pricing"><span class="more">+6 more</span></button>
         </div>
-        <button class="btn-slides" onclick="lbOpen('hvac',0)">&#9654; Watch the 8-slide walkthrough &mdash; full screen</button>
+        <button class="btn-slides" onclick="lbOpen('hvac',0)">&#9654; Watch the 8-slide walkthrough &mdash; full screen</button></div>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/hvac">Find Out More &rarr;</a>
@@ -325,11 +330,11 @@
           <div class="lw-cell loss"><span class="lw-tag">Priced by feel</span><div class="lw-big">&#9888; LOSES MONEY</div><small>the Offsite Ads trap most sellers find in their bank account</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$20.00</div><small>shelf price with 25% net after wax, labor and every Etsy fee</small></div>
         </div>
-        <div class="gal" aria-label="Screenshots">
+        <div class="gal-box"><div class="gal-lbl">See inside</div><div class="gal" aria-label="Screenshots">
           <button onclick="lbOpen('crafters',1)"><img loading="lazy" src="covers/crafters/02.jpg" alt="Handmade pricing dashboard — net margin, real hourly wage, breakeven"></button>
           <button onclick="lbOpen('crafters',5)"><img loading="lazy" src="covers/crafters/06.jpg" alt="Craft fair booth fee breakeven planner"><span class="more">+5 more</span></button>
         </div>
-        <button class="btn-slides" onclick="lbOpen('crafters',0)">&#9654; Watch the 7-slide walkthrough &mdash; full screen</button>
+        <button class="btn-slides" onclick="lbOpen('crafters',0)">&#9654; Watch the 7-slide walkthrough &mdash; full screen</button></div>
         <div class="card-footer">
           <div class="price-tag">$50 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/crafters">Find Out More &rarr;</a>
