@@ -81,6 +81,9 @@
   .metric-box:last-child { border-right: none; }
   .metric-val { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; color: var(--navy); line-height: 1.1; }
   .metric-lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .metric-wide { grid-column: 1 / -1; text-align: center; padding: 14px 16px; }
+  .metric-wide .metric-val { font-size: clamp(30px, 6.5vw, 42px); }
+  .metric-wide .metric-val b { color: var(--accent); }
 
   /* Body */
   .section-body { padding: 36px; }
@@ -316,9 +319,9 @@
       <div class="metric-val">20 MIN</div>
       <div class="metric-lbl">Guided Setup Time</div>
     </div>
-    <div class="metric-box">
-      <div class="metric-val">750+</div>
-      <div class="metric-lbl">Automated Checks &mdash; Using Exactly ZERO Macros &middot; Runs Offline in Excel / Sheets</div>
+    <div class="metric-box metric-wide">
+      <div class="metric-val"><b>750+</b> automated checks &nbsp;&middot;&nbsp; <b>ZERO</b> macros</div>
+      <div class="metric-lbl">Every formula verified &mdash; runs offline in Excel / Sheets, nothing to enable</div>
     </div>
   </div>
 
