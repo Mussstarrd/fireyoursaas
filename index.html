@@ -113,6 +113,10 @@
   .gal img { width:100%; height:104px; object-fit:cover; object-position:left top; display:block; }
   .gal .more { position:absolute; inset:0; background:rgba(19,41,75,.55); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
   .gal-hint { font-size:11px; color:var(--muted); margin:-8px 0 10px; }
+  .gal-one { display:block; width:100%; border:1px solid rgba(255,255,255,.28); border-radius:6px; overflow:hidden; padding:0; background:none; cursor:pointer; margin:2px 0 14px; }
+  .gal-one img { width:100%; height:150px; object-fit:cover; object-position:left top; display:block; }
+  .gal-one-cta { display:block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:9px 12px; text-align:center; }
+  .gal-one:hover .gal-one-cta { background:#C74E15; }
   .gal-box { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.22); border-radius:6px; padding:10px; margin:2px 0 14px; }
   .gal-box .gal { margin:0 0 8px; }
   .gal-box .btn-slides { margin:0; }
@@ -304,11 +308,7 @@
           <div class="lw-cell loss"><span class="lw-tag">Guessing by gut</span><div class="lw-big">under $114.09/hr</div><small>your true cost to roll a truck &mdash; bill less and you're paying to work</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$125.05 flat</div><small>capacitor swap, margin protected &mdash; 9pm Sunday on a roof: $206.33, automatic</small></div>
         </div>
-        <div class="gal-box"><div class="gal-lbl">See inside</div><div class="gal" aria-label="Screenshots">
-          <button onclick="lbOpen('hvac',2)"><img loading="lazy" src="covers/hvac/03.jpg" alt="HVAC quoting spreadsheet — Quick Quote tab, driveway quote in under a minute"></button>
-          <button onclick="lbOpen('hvac',8)"><img loading="lazy" src="covers/hvac/09.jpg" alt="HVAC flat-rate price book — standard, 9pm Sunday and rooftop prices per task"><span class="more">+7 more</span></button>
-        </div>
-        <button class="btn-slides" onclick="lbOpen('hvac',0)">&#9654; Watch the 8-slide walkthrough &mdash; full screen</button></div>
+        <button class="gal-one" onclick="lbOpen('hvac',0)"><img loading="lazy" src="covers/hvac/01.jpg" alt="HVAC engine walkthrough — prime it once, 5 steps, 20 minutes"><span class="gal-one-cta">&#9654; See it in action &mdash; 9-slide walkthrough</span></button>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/hvac">Find Out More &rarr;</a>
@@ -351,11 +351,7 @@
           <div class="lw-cell loss"><span class="lw-tag">Priced by feel</span><div class="lw-big">&#9888; LOSES MONEY</div><small>the Offsite Ads trap most sellers find in their bank account</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$20.00</div><small>shelf price with 25% net after wax, labor and every Etsy fee</small></div>
         </div>
-        <div class="gal-box"><div class="gal-lbl">See inside</div><div class="gal" aria-label="Screenshots">
-          <button onclick="lbOpen('crafters',1)"><img loading="lazy" src="covers/crafters/02.jpg" alt="Handmade pricing dashboard — net margin, real hourly wage, breakeven"></button>
-          <button onclick="lbOpen('crafters',5)"><img loading="lazy" src="covers/crafters/06.jpg" alt="Craft fair booth fee breakeven planner"><span class="more">+5 more</span></button>
-        </div>
-        <button class="btn-slides" onclick="lbOpen('crafters',0)">&#9654; Watch the 7-slide walkthrough &mdash; full screen</button></div>
+        <button class="gal-one" onclick="lbOpen('crafters',0)"><img loading="lazy" src="covers/crafters/01.jpg" alt="Crafters engine walkthrough — 5 steps, 30 minutes"><span class="gal-one-cta">&#9654; See it in action &mdash; 7-slide walkthrough</span></button>
         <div class="card-footer">
           <div class="price-tag">$50 <small>one-time</small></div>
           <a class="btn-download" href="https://fennster322.gumroad.com/l/crafters">Find Out More &rarr;</a>
@@ -490,9 +486,9 @@
   <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button id="lbZoomB" onclick="lbZoom(0.5,0.6)">&#128269; Magnify</button><button onclick="lbNav(1)">Next ›</button></div>
 </div>
 <script>
-var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Prime it once. 20 minutes."},{f:"02.jpg",c:"Run the day, or open the engine room"},{f:"03.jpg",c:"A driveway quote in under a minute"},{f:"04.jpg",c:"One screen tells you if you're making money"},{f:"05.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"06.jpg",c:"Quoted vs actual, job by job"},{f:"07.jpg",c:"Every dial in one place"},{f:"08.jpg",c:"Buy it once, mark it up right forever"},{f:"09.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"}]};
+var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Prime it once. 20 minutes."},{f:"02.jpg",c:"A driveway quote in under a minute"},{f:"03.jpg",c:"One screen tells you if you're making money"},{f:"04.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"05.jpg",c:"Quoted vs actual, job by job"},{f:"06.jpg",c:"Every dial in one place"},{f:"07.jpg",c:"Buy it once, mark it up right forever"},{f:"08.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"},{f:"09.jpg",c:"Run the day, or open the engine room"}]};
 var lbG=null,lbI=0;
-function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=4";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
+function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=5";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
 function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({l:1},"");}
 function lbCloseUI(){lbUnzoom();document.getElementById("lb").classList.remove("open");document.body.style.overflow="";}
 function lbClose(){var d=(history.state&&history.state.l)||0;lbCloseUI();if(d===1){lbPopSkip++;history.back();}else if(d===2){lbPopSkip++;history.go(-2);}}
