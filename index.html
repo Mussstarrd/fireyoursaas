@@ -305,17 +305,17 @@
         <div class="inv">
           <div class="proof-lbl">The invoice most shops write</div>
           <div class="inv-sub">Saturday 3:30 PM &middot; capacitor swap</div>
-          <div class="inv-row"><span>Service call &mdash; 1 hr @ $95</span><b>$95.00</b></div>
-          <div class="inv-row"><span>Run capacitor</span><b>$35.00</b></div>
+          <div class="inv-row"><span>Service call &mdash; 1 hr @ $115</span><b>$115.00</b></div>
+          <div class="inv-row"><span>Run capacitor</span><b>$40.00</b></div>
           <div class="inv-row gone"><span>Wire nuts, tape, torch gas</span><b>$0.00</b></div>
           <div class="inv-row gone"><span>Callback fund</span><b>$0.00</b></div>
           <div class="inv-row gone"><span>Saturday afternoon</span><b>$0.00</b></div>
-          <div class="inv-row tot"><span>Total</span><b>$130.00</b></div>
-          <div class="inv-foot">$95 because the guy down the road charges $95. Saturday cost the tech his afternoon; it cost the customer nothing.</div>
+          <div class="inv-row tot"><span>Total</span><b>$155.00</b></div>
+          <div class="inv-foot">$115 because the guy down the road charges $115. Saturday cost the tech his afternoon; it cost the customer nothing.</div>
         </div>
         <div class="inv eng">
           <div class="proof-lbl">The same job, priced by the engine</div>
-          <div class="inv-sub">After-hours = Y. One dropdown.</div>
+          <div class="inv-sub">After-hours = Y. The customer sees one line: $279.66. This breakdown is yours.</div>
           <div class="inv-row"><span>Labor 1.0 hr @ $114.09 loaded rate</span><b>$114.09</b></div>
           <div class="inv-row hi"><span>Capacitor $18 landed &times; 3.5 <em>your markup tier</em></span><b>$63.00</b></div>
           <div class="inv-row hi"><span>Consumables 3% <em>wire nuts, tape, torch gas</em></span><b>$1.89</b></div>
@@ -324,7 +324,7 @@
           <div class="inv-row tot"><span>Total</span><b>$279.66</b></div>
         </div>
       </div>
-      <div class="proof-note"><b class="callout">+$149.66. Same truck, same hour.</b> I'm not creating money for you. I'm squeezing out the profit that was already in the job. Cents become dollars. Dollars become a business that's still here next year. Every number above is a dial you set once, in a blue cell.</div>
+      <div class="proof-note"><b class="callout">$124.66 short. One job.</b> I'm not creating money for you. I'm squeezing out the profit that was already in the job. Cents become dollars. Dollars become a business that's still here next year. Every number above is a dial you set once, in a blue cell.</div>
     </div>
 
     
@@ -552,7 +552,7 @@
   <div class="lb-bar"><button onclick="lbNav(-1)">‹ Prev</button><button id="lbZoomB" onclick="lbZoom(0.5,0.6)">&#128269; Magnify</button><button onclick="lbNav(1)">Next ›</button></div>
 </div>
 <script>
-var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Run the day, or open the engine room"},{f:"02.jpg",c:"Same capacitor. Same Saturday. $149.66 left on the truck."},{f:"03.jpg",c:"Prime it once. 20 minutes."},{f:"04.jpg",c:"A driveway quote in under a minute"},{f:"05.jpg",c:"One screen tells you if you're making money"},{f:"06.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"07.jpg",c:"Quoted vs actual, job by job"},{f:"08.jpg",c:"Every dial in one place"},{f:"09.jpg",c:"Buy it once, mark it up right forever"},{f:"10.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"}]};
+var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Run the day, or open the engine room"},{f:"02.jpg",c:"Same job. Same Saturday. You were $124.66 short and didn't know it."},{f:"03.jpg",c:"Prime it once. 20 minutes."},{f:"04.jpg",c:"A driveway quote in under a minute"},{f:"05.jpg",c:"One screen tells you if you're making money"},{f:"06.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"07.jpg",c:"Quoted vs actual, job by job"},{f:"08.jpg",c:"Every dial in one place"},{f:"09.jpg",c:"Buy it once, mark it up right forever"},{f:"10.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"}]};
 var lbG=null,lbI=0;
 function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=7";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
 function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({l:1},"");}
