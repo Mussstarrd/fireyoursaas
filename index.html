@@ -241,11 +241,10 @@
 
   /* Hero proof demo */
   .proof { margin: 26px auto 0; border-radius: 6px; max-width: 880px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.28); text-align: left; }
-  .proof-head { background: #102A4A; padding: 18px 22px 16px; border-bottom: 5px solid var(--accent); }
+  .proof-head { background: #102A4A; padding: 18px 22px 17px; border-bottom: 5px solid var(--accent); }
   .proof-tick { display: block; width: 74px; height: 6px; background: var(--accent); margin: 0 0 12px; }
-  .proof-h { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(21px, 3.4vw, 33px); line-height: 1.1; color: #fff; margin: 0 0 7px; letter-spacing: .01em; text-wrap: balance; }
+  .proof-h { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(21px, 3.4vw, 33px); line-height: 1.1; color: #fff; margin: 0; letter-spacing: .01em; text-wrap: balance; }
   .proof-h b { color: #FDBA74; font-weight: 700; }
-  .proof-sub { font-size: 14.5px; color: #C3D2E6; margin: 0; }
   .proof-body { background: #F5F6F2; padding: 18px; }
   .proof-thesis { background: #1F5C45; padding: 15px 22px 17px; text-align: center; }
   .proof-thesis .th1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(16px, 2.5vw, 23px); color: #fff; margin: 0 0 4px; letter-spacing: .01em; text-wrap: balance; }
@@ -313,7 +312,6 @@
       <div class="proof-head">
         <span class="proof-tick"></span>
         <h2 class="proof-h">Same job. Same Saturday. <b>$163.63 more</b>, and you can show your work.</h2>
-        <p class="proof-sub">Left: what most shops quote. Right: what the engine quotes. The customer sees one number either way.</p>
       </div>
 
       <div class="proof-body">
@@ -382,7 +380,7 @@
           <div class="lw-cell loss"><span class="lw-tag">Guessing by gut</span><div class="lw-big">under $92.55/hr</div><small>your true cost to roll a truck &mdash; bill less and you're paying to work</small></div>
           <div class="lw-cell win"><span class="lw-tag">Engine says</span><div class="lw-big">$552.32 flat</div><small>condenser fan motor, consumables + callback fund built in &mdash; Saturday 3:30pm, trip included: $713.63, automatic</small></div>
         </div>
-        <button class="gal-one" onclick="lbOpen('hvac',0)"><img loading="lazy" src="covers/hvac/01.jpg?v=14" alt="HVAC engine walkthrough — the whole system in five lines"><span class="gal-one-cta">&#9654; See it in action &mdash; 10-slide walkthrough</span></button>
+        <button class="gal-one" onclick="lbOpen('hvac',0)"><img loading="lazy" src="covers/hvac/01.jpg?v=15" alt="HVAC engine walkthrough — the whole system in five lines"><span class="gal-one-cta">&#9654; See it in action &mdash; 10-slide walkthrough</span></button>
         <div class="card-footer">
           <div class="price-tag">$75 <small>one-time</small></div>
           <a class="btn-download" href="https://fireyoursaas.gumroad.com/l/hvac">Get the HVAC Engine &mdash; $75 &rarr;</a>
@@ -576,7 +574,7 @@
 <script>
 var GALS={crafters:[{f:"01.jpg",c:"5 steps, 30 minutes, then it prices everything"},{f:"02.jpg",c:"One screen tells you if you're getting paid"},{f:"03.jpg",c:"Your hour, costed honestly"},{f:"04.jpg",c:"Buy by the box, cost by the ounce"},{f:"05.jpg",c:"Build each product from dropdowns"},{f:"06.jpg",c:"Is that booth fee worth it? Know before you pay"},{f:"07.jpg",c:"What you really cleared, per sale, per hour"}],hvac:[{f:"01.jpg",c:"Run the day, or open the engine room"},{f:"02.jpg",c:"Same job. Same Saturday. $163.63 more, and you can show your work."},{f:"03.jpg",c:"Prime it once. 20 minutes."},{f:"04.jpg",c:"A driveway quote in under a minute"},{f:"05.jpg",c:"One screen tells you if you're making money"},{f:"06.jpg",c:"A customer-ready quote — Good / Better / Best"},{f:"07.jpg",c:"Quoted vs actual, job by job"},{f:"08.jpg",c:"Every dial in one place"},{f:"09.jpg",c:"Buy it once, mark it up right forever"},{f:"10.jpg",c:"Your whole price book — standard, 9pm Sunday, rooftop"}]};
 var lbG=null,lbI=0;
-function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=14";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
+function lbShow(){lbZoomOff();var f=GALS[lbG];document.getElementById("lbImg").src="covers/"+lbG+"/full/"+f[lbI].f.replace(".jpg",".png")+"?v=15";document.getElementById("lbCap").textContent=f[lbI].c;document.getElementById("lbN").textContent=(lbI+1)+" / "+f.length;}
 function lbOpen(g,i){lbG=g;lbI=i;lbShow();document.getElementById("lb").classList.add("open");document.body.style.overflow="hidden";history.pushState({l:1},"");}
 function lbCloseUI(){lbUnzoom();document.getElementById("lb").classList.remove("open");document.body.style.overflow="";}
 function lbClose(){var d=(history.state&&history.state.l)||0;lbCloseUI();if(d===1){lbPopSkip++;history.back();}else if(d===2){lbPopSkip++;history.go(-2);}}
