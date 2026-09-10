@@ -1,0 +1,1792 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>HVAC CRM</title>
+<style>
+/* fireyourSaaS CRM — screen styles. Phone first, big targets, no decoration. */
+:root {
+  --ink: #17202c; --muted: #6b7482; --line: #d9dde3; --bg: #f3f4f6; --card: #fff;
+  --navy: #13294b; --orange: #e05a1b; --orange-dark: #b9470f; --green: #0a7a2f; --red: #b3261e; --amber: #9a6700;
+  --tap: 46px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 17px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+/* Shown unless boot() hides it — a file cut short never runs boot. The delay keeps a normal open from flashing it. */
+#damaged { display: block; padding: 24px; font-size: 20px; color: var(--red); opacity: 0; animation: fys-show 0s 1.5s forwards; }
+@keyframes fys-show { to { opacity: 1; } }
+#print { display: none; }
+
+/* ---- frame ---- */
+#app { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+header.bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+             background: var(--navy); color: #fff; padding-top: max(8px, env(safe-area-inset-top)); }
+header.bar .title { flex: 1; font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header.bar button { min-height: 44px; min-width: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: rgba(255,255,255,.14); color: #fff; font-weight: 600; }
+header.bar button.save { background: var(--orange); }
+header.bar button.save.dirty::after { content: " •"; }
+header.bar button.icon { padding: 0 12px; font-size: 22px; line-height: 1; min-width: 46px; }
+main { flex: 1; padding: 12px 12px 90px; max-width: 760px; width: 100%; margin: 0 auto; }
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 5; display: flex; background: var(--card); border-top: 1px solid var(--line);
+           padding-bottom: env(safe-area-inset-bottom); }
+nav.tabs button { flex: 1; min-height: 56px; border: 0; background: none; color: var(--muted); font-weight: 600; font-size: 15px; }
+nav.tabs button.on { color: var(--orange-dark); box-shadow: inset 0 3px 0 var(--orange); }
+@media print { #app { display: none; } }
+
+/* ---- pieces ---- */
+h2 { font-size: 20px; margin: 6px 0 10px; }
+h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.row > * { min-width: 0; }
+.grow { flex: 1; }
+.right { text-align: right; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.num { font-variant-numeric: tabular-nums; }
+.money { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.btn { min-height: var(--tap); padding: 0 16px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); font-weight: 600; }
+.btn.primary { background: var(--orange); border-color: var(--orange); color: #fff; }
+.btn.navy { background: var(--navy); border-color: var(--navy); color: #fff; }
+.btn.danger { color: var(--red); }
+.btn.wide { width: 100%; margin-top: 8px; }
+.btn.small { min-height: 44px; padding: 0 14px; font-size: 15px; }
+.x { min-width: 44px; min-height: 44px; border: 0; background: none; color: var(--muted); font-size: 22px; line-height: 1; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field label { font-size: 14px; color: var(--muted); }
+.field input, .field select, .field textarea, .lines input, .lines select {
+  min-height: var(--tap); padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: 100%; }
+.field textarea { min-height: 80px; }
+.field input:focus, select:focus, textarea:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color: var(--orange); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.grid3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0 10px; }
+.list .item { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; background: var(--card);
+              border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; width: 100%; text-align: left; }
+.list .item .main { flex: 1; min-width: 0; }
+.list .item .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #e9ecf1; color: var(--muted); }
+.chip.issued { background: #dff3e5; color: var(--green); }
+.chip.draft { background: #fff1e6; color: var(--orange-dark); }
+.chip.void { background: #f2dcdb; color: var(--red); }
+.flag { color: var(--amber); font-size: 14px; }
+.warn { background: #fff7e0; border: 1px solid #f1dc9a; border-radius: 8px; padding: 8px 10px; font-size: 15px; margin-bottom: 10px; }
+.banner { background: #fff1e6; border: 1px solid #f3c7ac; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-weight: 600; font-size: 15px; }
+.toggle.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.toast { position: fixed; left: 50%; bottom: 76px; transform: translateX(-50%); z-index: 9; background: var(--ink); color: #fff; padding: 10px 16px;
+         border-radius: 10px; font-weight: 600; max-width: 90vw; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.menu { position: fixed; top: 52px; right: 8px; z-index: 8; background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(0,0,0,.18); min-width: 200px; overflow: hidden; }
+.menu button { display: block; width: 100%; min-height: 48px; padding: 0 16px; border: 0; background: none; text-align: left; font-weight: 600; }
+.menu button:active { background: var(--bg); }
+.menu .sep { border-top: 1px solid var(--line); }
+.backdrop { position: fixed; inset: 0; z-index: 7; }
+.modal { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; }
+.modal .sheet { background: var(--card); width: 100%; max-width: 560px; border-radius: 14px 14px 0 0; padding: 16px; max-height: 88vh; overflow: auto; }
+.modal .sheet h2 { margin-top: 0; }
+.modal .actions { display: flex; gap: 8px; margin-top: 12px; }
+.modal .actions .btn { flex: 1; }
+.dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 15px; }
+.dl dt { color: var(--muted); }
+.dl dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+.backupbar { display: flex; gap: 10px; align-items: center; background: #fff7e0; border-bottom: 1px solid #f1dc9a; padding: 8px 12px; }
+.backupbar .txt { flex: 1; font-size: 14px; }
+
+/* ---- pickers ---- */
+.pick { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; min-height: var(--tap); padding: 6px 10px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff; text-align: left; }
+.pick .val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick.blank .val { color: var(--muted); }
+.pick .chev { color: var(--muted); }
+.pick:disabled { background: var(--bg); color: var(--muted); }
+.pick:focus { outline: 2px solid var(--orange); outline-offset: 0; }
+.modal .sheet.picker { padding: 0; display: flex; flex-direction: column; height: 88vh; overflow: hidden; }
+.picker .head { display: flex; gap: 6px; align-items: center; padding: 8px 8px 8px 12px; border-bottom: 1px solid var(--line); }
+.picker .head input { flex: 1; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.picker .rows { overflow: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+.picker .cat { position: sticky; top: 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+  background: var(--bg); padding: 8px 12px 4px; border-bottom: 1px solid var(--line); }
+.picker .row { display: block; width: 100%; min-height: 46px; padding: 10px 12px; border: 0; border-bottom: 1px solid var(--line); background: var(--card); text-align: left; }
+.picker .row.cur { color: var(--orange); font-weight: 600; }
+.picker .row:active { background: #fff1e6; }
+
+/* ---- quote editor ---- */
+.lines .line { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+.lines .line.changed { animation: flash 1.2s; }
+@keyframes flash { 0% { background: #fff1e6; } 100% { background: var(--card); } }
+.lines .line .top { display: flex; gap: 8px; align-items: center; }
+.lines .line .top select, .lines .line .top input, .lines .line .top .pick { flex: 1; }
+.lines .line .opts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.lines .line .opts input.qty { width: 74px; text-align: center; }
+.lines .line .opts select.warranty { flex: 1; min-width: 150px; }
+.lines .line .price { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; }
+.lines .line .price .detail { font-size: 14px; color: var(--muted); }
+.totals { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.totals .row { min-height: 42px; }
+.totals .row input { width: 110px; text-align: right; min-height: 40px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.totals .grand { border-top: 2px solid var(--ink); margin-top: 6px; padding-top: 8px; font-size: 20px; }
+.pad { display: block; width: 100%; height: 180px; background: #fff; border: 1px solid var(--line); border-radius: 10px; touch-action: none; }
+.accepted .sig { display: block; height: 48px; margin-top: 6px; }
+.frozen { background: #eef3fb; border: 1px solid #c8d6ee; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; }
+.actions2 { display: flex; gap: 8px; margin-top: 12px; }
+.actions2 .btn { flex: 1; }
+.rates { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 16px; }
+.rates .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.slots .slot { display: grid; grid-template-columns: 1fr 70px 40px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.slots .slot input { text-align: center; }
+.search { margin-bottom: 10px; }
+.search input { width: 100%; min-height: var(--tap); padding: 6px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+
+</style>
+<style>
+/* fireyourSaaS CRM — the customer's page. Only #print is visible when printing. */
+@media print {
+  @page { margin: 0; size: auto; }
+  html, body { background: #fff; }
+  body { margin: 0; color: #000; }
+  #app, #damaged, .toast, .menu, .modal, .backdrop { display: none !important; }
+  #print { display: block !important; }
+}
+#print { font: 12pt/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #000; padding: 0.6in 0.65in; max-width: 8.5in; margin: 0 auto; }
+#print.preview { display: block; background: #fff; }
+#print .head { display: flex; justify-content: space-between; gap: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px; }
+#print .biz { font-size: 11pt; }
+#print .biz .name { font-size: 18pt; font-weight: 700; }
+#print .qmeta { text-align: right; font-size: 11pt; }
+#print .qmeta .n { font-size: 16pt; font-weight: 700; }
+#print .cust { margin-bottom: 14px; font-size: 11pt; }
+#print .cust .label { font-size: 9pt; text-transform: uppercase; letter-spacing: .06em; color: #444; }
+#print table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+#print th { text-align: left; font-size: 9pt; text-transform: uppercase; letter-spacing: .06em; color: #444; border-bottom: 1px solid #000; padding: 4px 6px; }
+#print td { padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
+#print td.n, #print th.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#print td .sub { font-size: 9.5pt; color: #444; }
+#print .tot { width: 3.4in; margin-left: auto; font-variant-numeric: tabular-nums; }
+#print .tot .r { display: flex; justify-content: space-between; padding: 3px 6px; }
+#print .tot .r.grand { border-top: 2px solid #000; margin-top: 4px; padding-top: 6px; font-size: 14pt; font-weight: 700; }
+#print .terms { margin-top: 20px; font-size: 9.5pt; color: #222; border-top: 1px solid #000; padding-top: 8px; white-space: pre-wrap; }
+#print .sign { margin-top: 28px; display: flex; gap: 30px; font-size: 10pt; }
+#print .sign > div { flex: 1; }
+#print .sign .above { height: 48px; display: flex; align-items: flex-end; font-size: 11pt; }
+#print .sign img, #print .sign canvas { display: block; height: 46px; }
+#print .sign .label { border-top: 1px solid #000; padding-top: 4px; }
+
+</style>
+</head>
+<body>
+<div id="damaged">This file did not load completely. Open your most recent backup copy instead.</div>
+<div id="app"></div>
+<div id="print"></div>
+<script id="fys-data" type="application/json">{"schema":1,"app":"fireyourSaaS CRM","appVersion":"0.1.0","createdAt":null,"savedAt":null,"business":{"name":"","phone":"","email":"","address":"","license":""},"settings":{"wage":28,"burden":0.22,"vehicle":14000,"insurance":8000,"tools":4000,"shop":22000,"billableHours":1200,"efficiency":0.65,"targetMargin":0.2,"warrantyReserve":0.04,"afterHours":0.5,"attic":0.15,"tripFee":89,"consumables":0.03,"tiers":{"t1":50,"m1":3.5,"t2":200,"m2":2.5,"t3":1000,"m3":2,"m4":1.5},"repeatDiscount":0.15,"warranties":[{"label":"1 yr parts / 30 days labor","multiplier":1},{"label":"2 yrs parts & labor","multiplier":1.1},{"label":"5 yrs parts / 2 yrs labor","multiplier":1.2}]},"parts":[{"name":"Run Capacitor 45/5 MFD","category":"Electrical","note":"","cost":18,"freight":0,"override":null},{"name":"Run Capacitor 35/5 MFD","category":"Electrical","note":"","cost":16,"freight":0,"override":null},{"name":"Contactor 2-pole 40A","category":"Electrical","note":"","cost":13,"freight":0,"override":null},{"name":"Hard Start Kit","category":"Electrical","note":"","cost":13,"freight":0,"override":null},{"name":"Transformer 24V 40VA","category":"Electrical","note":"","cost":20,"freight":0,"override":null},{"name":"Control Board (furnace)","category":"Controls","note":"universal HSI board; OEM boards $50–$300","cost":137,"freight":12,"override":null},{"name":"Thermostat - Programmable","category":"Controls","note":"markup capped at 1.6x - the customer can price this one on a shelf","cost":75,"freight":0,"override":1.6},{"name":"Pressure Switch","category":"Controls","note":"","cost":32,"freight":0,"override":null},{"name":"Hot Surface Ignitor","category":"Controls","note":"","cost":24,"freight":0,"override":null},{"name":"Flame Sensor","category":"Controls","note":"","cost":31,"freight":0,"override":null},{"name":"Blower Motor PSC 1/2 HP","category":"Airflow","note":"","cost":129,"freight":15,"override":null},{"name":"Blower Motor ECM","category":"Airflow","note":"X13 programmed; lead times vary","cost":342,"freight":15,"override":null},{"name":"Condenser Fan Motor 1/4 HP","category":"Airflow","note":"","cost":140,"freight":12,"override":null},{"name":"Inducer Motor Assembly","category":"Airflow","note":"","cost":195,"freight":12,"override":null},{"name":"Fan Blade (condenser)","category":"Airflow","note":"","cost":42,"freight":8,"override":null},{"name":"R-410A Refrigerant (per lb)","category":"Refrigerant","note":"VOLATILE - post-phasedown pricing moves fast. Update every cylinder you buy.","cost":14,"freight":0,"override":null},{"name":"R-454B Refrigerant (per lb)","category":"Refrigerant","note":"VOLATILE - A2L, restricted channel. Update every cylinder you buy.","cost":32,"freight":0,"override":null},{"name":"R-22 Refrigerant (per lb)","category":"Refrigerant","note":"VOLATILE - reclaimed only. Update every cylinder you buy.","cost":48,"freight":0,"override":null},{"name":"Filter Drier","category":"Refrigerant","note":"","cost":20,"freight":0,"override":null},{"name":"TXV Valve","category":"Refrigerant","note":"","cost":160,"freight":10,"override":null},{"name":"Compressor 3-ton (scroll, aftermarket)","category":"Refrigerant","note":"aftermarket; OEM runs $1,500-$2,000 - use your supplier price","cost":885,"freight":65,"override":null},{"name":"Evaporator Coil 3-ton","category":"Refrigerant","note":"R-410A","cost":450,"freight":60,"override":null},{"name":"Condensate Pump","category":"Airflow","note":"","cost":55,"freight":0,"override":null},{"name":"Float Switch","category":"Controls","note":"","cost":19,"freight":0,"override":null},{"name":"Capacitor Dual 40/5 MFD","category":"Electrical","note":"","cost":21,"freight":0,"override":null}],"tasks":[{"name":"Diagnostic Visit (no repair)","category":"Controls","hours":1,"parts":[],"reserve":null},{"name":"Replace Run Capacitor","category":"Electrical","hours":1,"parts":[{"part":"Run Capacitor 45/5 MFD","qty":1}],"reserve":null},{"name":"Replace Contactor","category":"Electrical","hours":0.75,"parts":[{"part":"Contactor 2-pole 40A","qty":1}],"reserve":null},{"name":"Capacitor + Contactor Combo","category":"Electrical","hours":1,"parts":[{"part":"Run Capacitor 45/5 MFD","qty":1},{"part":"Contactor 2-pole 40A","qty":1}],"reserve":null},{"name":"Install Hard Start Kit","category":"Electrical","hours":0.5,"parts":[{"part":"Hard Start Kit","qty":1}],"reserve":null},{"name":"Replace Transformer","category":"Electrical","hours":0.8,"parts":[{"part":"Transformer 24V 40VA","qty":1}],"reserve":null},{"name":"Replace Furnace Control Board","category":"Controls","hours":1.5,"parts":[{"part":"Control Board (furnace)","qty":1}],"reserve":null},{"name":"Replace Thermostat","category":"Controls","hours":1,"parts":[{"part":"Thermostat - Programmable","qty":1}],"reserve":null},{"name":"Replace Ignitor + Clean Flame Sensor","category":"Controls","hours":0.8,"parts":[{"part":"Hot Surface Ignitor","qty":1},{"part":"Flame Sensor","qty":1}],"reserve":null},{"name":"Replace Pressure Switch","category":"Controls","hours":0.8,"parts":[{"part":"Pressure Switch","qty":1}],"reserve":null},{"name":"Replace Blower Motor (PSC)","category":"Airflow","hours":2.5,"parts":[{"part":"Blower Motor PSC 1/2 HP","qty":1},{"part":"Run Capacitor 45/5 MFD","qty":1}],"reserve":null},{"name":"Replace Blower Motor (ECM)","category":"Airflow","hours":2.5,"parts":[{"part":"Blower Motor ECM","qty":1}],"reserve":null},{"name":"Replace Condenser Fan Motor","category":"Airflow","hours":1.5,"parts":[{"part":"Condenser Fan Motor 1/4 HP","qty":1}],"reserve":null},{"name":"Replace Inducer Motor","category":"Airflow","hours":2,"parts":[{"part":"Inducer Motor Assembly","qty":1}],"reserve":null},{"name":"Refrigerant Recharge R-410A (3 lb)","category":"Refrigerant","hours":1,"parts":[{"part":"R-410A Refrigerant (per lb)","qty":3}],"reserve":null},{"name":"Refrigerant Recharge R-454B (3 lb)","category":"Refrigerant","hours":1.5,"parts":[{"part":"R-454B Refrigerant (per lb)","qty":3}],"reserve":null},{"name":"Replace Filter Drier + Evacuate","category":"Refrigerant","hours":2,"parts":[{"part":"Filter Drier","qty":1},{"part":"R-410A Refrigerant (per lb)","qty":4}],"reserve":null},{"name":"Replace TXV","category":"Refrigerant","hours":2.5,"parts":[{"part":"TXV Valve","qty":1},{"part":"R-410A Refrigerant (per lb)","qty":4},{"part":"Filter Drier","qty":1}],"reserve":null},{"name":"Replace Compressor 3-ton (out of warranty)","category":"Refrigerant","hours":6,"parts":[{"part":"Compressor 3-ton (scroll, aftermarket)","qty":1},{"part":"R-410A Refrigerant (per lb)","qty":6}],"reserve":null},{"name":"Replace Evaporator Coil 3-ton","category":"Refrigerant","hours":4,"parts":[{"part":"Evaporator Coil 3-ton","qty":1},{"part":"R-410A Refrigerant (per lb)","qty":6}],"reserve":null},{"name":"Replace Condensate Pump","category":"Airflow","hours":0.8,"parts":[{"part":"Condensate Pump","qty":1},{"part":"Float Switch","qty":1}],"reserve":null},{"name":"Clear Condensate Drain","category":"Airflow","hours":0.7,"parts":[],"reserve":null},{"name":"Seasonal Tune-Up (cooling)","category":"Airflow","hours":1.2,"parts":[],"reserve":null},{"name":"Replace Compressor 3-ton (warranty part — labor + refrigerant)","category":"Refrigerant","hours":6,"parts":[{"part":"R-410A Refrigerant (per lb)","qty":6}],"reserve":null},{"name":"Heat Pump - Replace Reversing Valve","category":"Heat Pump","hours":4,"parts":[],"reserve":null},{"name":"Heat Pump - Replace Defrost Control Board","category":"Heat Pump","hours":1.5,"parts":[],"reserve":null},{"name":"Heat Pump - Replace Aux Heat Strip","category":"Heat Pump","hours":1.5,"parts":[],"reserve":null},{"name":"Heat Pump - Defrost Cycle Diagnostic","category":"Heat Pump","hours":1,"parts":[],"reserve":null},{"name":"Refrigerant Leak Search (electronic + bubble)","category":"Refrigeration","hours":2,"parts":[],"reserve":null},{"name":"Refrigerant Leak Search + Dye Injection","category":"Refrigeration","hours":1.5,"parts":[],"reserve":null},{"name":"Condenser Coil Chemical Clean","category":"Maintenance","hours":1.5,"parts":[],"reserve":null},{"name":"Blower Wheel Pull and Clean","category":"Airflow","hours":2,"parts":[],"reserve":null},{"name":"Replace Gas Valve","category":"Heating","hours":1.5,"parts":[],"reserve":null},{"name":"Replace Flame Rollout Switch","category":"Heating","hours":1,"parts":[],"reserve":null},{"name":"Replace High Limit Switch","category":"Heating","hours":1,"parts":[],"reserve":null},{"name":"Heat Exchanger Inspection (camera)","category":"Heating","hours":1.5,"parts":[],"reserve":null},{"name":"Duct Repair / Reseal - per accessible run","category":"Ductwork","hours":1.5,"parts":[],"reserve":null},{"name":"Replace Flex Duct Run","category":"Ductwork","hours":2,"parts":[],"reserve":null},{"name":"System Replacement - Site Survey and Load Calc","category":"Replacement","hours":2.5,"parts":[],"reserve":null}],"quotes":[],"priceLog":[],"terms":"Scope of work: the price includes labor and the listed parts. After-hours / rooftop add-ons apply to the labor only. Prices valid 30 days.","counts":{"parts":25,"tasks":39,"quotes":0,"priceLog":0}}</script>
+<script>
+/* fireyourSaaS CRM — pricing core.
+ *
+ * Pure functions, no DOM, no state. Ported cell-for-cell from HVAC_Quoting_Engine.xlsx
+ * (md5 4cc6374d67f9040b356e73fb04b47ead) in the workbook's operation order with NO rounding
+ * inside the chain. The one rounding function lives at the bottom and is used only when a
+ * document is totalled for printing (the "add-up" rule).
+ *
+ * Every formula it mirrors is quoted next to the code so a reader can check it against the sheet.
+ * Loads in a browser (window.FYS.pricing) and in node (module.exports) so the same file is tested.
+ */
+(function (root) {
+  'use strict';
+
+  // Excel's N(): blank / text / NaN count as 0.
+  function num(v) {
+    if (v === null || v === undefined || v === '') return 0;
+    var n = Number(v);
+    return isFinite(n) ? n : 0;
+  }
+  function isBlank(v) { return v === null || v === undefined || v === ''; }
+
+  // ---- Setup_Labor_Overhead!G5:G9 ------------------------------------------------------------
+  // G5 = C5*(1+C6)                 burdened wage
+  // G6 = SUM(C7:C10)               overhead, four buckets — never stored as one number
+  // G7 = IF(C11<=0,0,G6/C11)       overhead per billable hour
+  // G8 = IF(C12<=0,0,G5/C12+G7)    loaded rate (efficiency 0 zeroes the whole rate — kept, warned in UI)
+  // G9 = IF(C13>=1,0,G8/(1-C13))   minimum billable incl. target margin (advisory only)
+  function rates(s) {
+    var burdened = num(s.wage) * (1 + num(s.burden));
+    var overhead = num(s.vehicle) + num(s.insurance) + num(s.tools) + num(s.shop);
+    var hours = num(s.billableHours), eff = num(s.efficiency), margin = num(s.targetMargin);
+    var overheadPerHour = hours <= 0 ? 0 : overhead / hours;
+    var loaded = eff <= 0 ? 0 : burdened / eff + overheadPerHour;
+    var minimum = margin >= 1 ? 0 : loaded / (1 - margin);
+    return { burdened: burdened, overhead: overhead, overheadPerHour: overheadPerHour, loaded: loaded, minimum: minimum };
+  }
+
+  // ---- Parts_Cost_Database!F:H ---------------------------------------------------------------
+  // F = D+E                                                             landed
+  // G = IF(I<>"",I, IF(F<t1,m1, IF(F<t2,m2, IF(F<t3,m3, m4))))          multiplier (override wins)
+  // H = MAX(F*G, IF(I<>"",0, IF(F<t1,0, IF(F<t2,t1*m1, IF(F<t3,t2*m2, t3*m3)))))   price with floor
+  // The floor stops a $50 part billing less than a $49 one. An override bypasses the floor —
+  // thermostat 75 with override 1.6 bills 120.00, not 175. Never clamp an override up.
+  function partPrice(part, s) {
+    var t = s.tiers || {};
+    var landed = num(part.cost) + num(part.freight);
+    var hasOverride = !isBlank(part.override);
+    var multiplier, floor;
+    if (hasOverride) {
+      multiplier = num(part.override); floor = 0;
+    } else if (landed < num(t.t1)) { multiplier = num(t.m1); floor = 0; }
+    else if (landed < num(t.t2)) { multiplier = num(t.m2); floor = num(t.t1) * num(t.m1); }
+    else if (landed < num(t.t3)) { multiplier = num(t.m3); floor = num(t.t2) * num(t.m2); }
+    else { multiplier = num(t.m4); floor = num(t.t3) * num(t.m3); }
+    return { landed: landed, multiplier: multiplier, price: Math.max(landed * multiplier, floor) };
+  }
+
+  // ---- FlatRate_Task_Builder!H:P -------------------------------------------------------------
+  // H = Setup!C17 (or a per-task override)                        warranty reserve
+  // I = C*Setup!G8                                                labor billed
+  // J = Σ VLOOKUP(part, PartsDB, 8)*qty   (unknown part → 0; blank qty → 0)   parts billed
+  // K = IF(H>=1,0,(I+J*(1+consumables))/(1-H))                    standard flat-rate price
+  // L = IF(H>=1,0,K+I*afterHours/(1-H))                           after-hours price
+  // M = IF(H>=1,0,K+I*attic/(1-H))                                attic / rooftop price
+  // N = C*Setup!G5 + Σ landed*qty                                 direct job cost (owner only)
+  // O = K-N ; P = IF(K<=0,0,O/K)                                  gross profit, margin (owner only)
+  // Premiums are on LABOR only: J never appears in L or M.
+  function taskPrice(task, s, partsByName) {
+    var r = rates(s);
+    var hours = num(task.hours);
+    var reserve = isBlank(task.reserve) ? num(s.warrantyReserve) : num(task.reserve);
+    var laborBilled = hours * r.loaded;
+    var partsBilled = 0, partsLanded = 0;
+    (task.parts || []).forEach(function (slot) {
+      var p = partsByName[slot.part];
+      if (!p) return;                          // IFERROR(VLOOKUP(...),0)
+      var pp = partPrice(p, s), q = num(slot.qty);   // blank qty on a price-book slot = 0
+      partsBilled += pp.price * q;
+      partsLanded += pp.landed * q;
+    });
+    var gross = reserve >= 1 ? 0 : 1 / (1 - reserve);
+    var standard = reserve >= 1 ? 0 : (laborBilled + partsBilled * (1 + num(s.consumables))) * gross;
+    var afterHours = reserve >= 1 ? 0 : standard + laborBilled * num(s.afterHours) * gross;
+    var attic = reserve >= 1 ? 0 : standard + laborBilled * num(s.attic) * gross;
+    var directCost = hours * r.burdened + partsLanded;
+    var grossProfit = standard - directCost;
+    return {
+      laborBilled: laborBilled, partsBilled: partsBilled, reserve: reserve,
+      standard: standard, afterHours: afterHours, attic: attic,
+      directCost: directCost, grossProfit: grossProfit, margin: standard <= 0 ? 0 : grossProfit / standard
+    };
+  }
+
+  // ---- Quote!F:H -----------------------------------------------------------------------------
+  // Price-book line n (rows 15–22):
+  //   F = (K − IF(any earlier price-book line is filled, I*repeatDiscount, 0)) * warrantyMultiplier
+  //   G = IF(afterHrs="Y", L−K, 0) + IF(attic="Y", M−K, 0)        written as the sheet's subtraction
+  //   H = (N(F)+N(G)) * IF(qty="",1,qty)                          blank qty on a QUOTE line = 1
+  // Free-form line (rows 23–24): F typed by the owner, G blank, H = (F+G)*qty. No premiums, no
+  // warranty multiplier, no discount — exactly what the sheet does.
+  // Unknown task name → VLOOKUP fails → 0, never an error.
+  // Warranty tier: the multiplier of the matching label, 1 if the label is unknown or blank.
+  function warrantyMultiplier(label, s) {
+    if (isBlank(label)) return 1;                       // 'standard' — a tier with no label yet must not match it
+    var list = s.warranties || [];
+    for (var i = 0; i < list.length; i++) if (list[i] && list[i].label === label) return num(list[i].multiplier);
+    return 1;
+  }
+  function quoteLine(line, discountApplies, s, tasksByName, partsByName) {
+    var qty = isBlank(line.qty) ? 1 : num(line.qty);
+    if (line.freeform) {
+      var unit = num(line.price);
+      return { description: line.description || '', qty: qty, unitPrice: unit, surcharge: 0, lineTotal: unit * qty,
+               discount: 0, discountApplied: false, warrantyMultiplier: 1, freeform: true };
+    }
+    var task = tasksByName[line.task];
+    if (!task) {
+      return { description: line.task || '', qty: qty, unitPrice: 0, surcharge: 0, lineTotal: 0,
+               discount: 0, discountApplied: false, warrantyMultiplier: 1, freeform: false, unknownTask: true };
+    }
+    var t = taskPrice(task, s, partsByName);
+    var discount = discountApplies ? t.laborBilled * num(s.repeatDiscount) : 0;
+    var wm = warrantyMultiplier(line.warranty, s);
+    var unitPrice = (t.standard - discount) * wm;
+    var surcharge = (line.afterHours ? t.afterHours - t.standard : 0) + (line.attic ? t.attic - t.standard : 0);
+    return {
+      description: task.name, qty: qty, unitPrice: unitPrice, surcharge: surcharge,
+      lineTotal: (unitPrice + surcharge) * qty,
+      discount: discount, discountApplied: discountApplies, warrantyMultiplier: wm, warranty: line.warranty || '',
+      afterHours: !!line.afterHours, attic: !!line.attic, hours: num(task.hours), loadedRate: rates(s).loaded,
+      laborBilled: t.laborBilled, partsBilled: t.partsBilled, freeform: false
+    };
+  }
+
+  // Prices every line in order. The discount applies to a price-book line when ANY earlier
+  // price-book line exists (SUMPRODUCT(($A$15:$A15<>"")*1)>0) — free-form lines never count and
+  // are never discounted. Line order therefore changes the price; the UI keeps order fixed.
+  function priceLines(lines, s, tasksByName, partsByName) {
+    var seenPriceBook = false, out = [];
+    for (var i = 0; i < lines.length; i++) {
+      var ln = lines[i];
+      var applies = !ln.freeform && seenPriceBook;
+      out.push(quoteLine(ln, applies, s, tasksByName, partsByName));
+      if (!ln.freeform && !isBlank(ln.task)) seenPriceBook = true;
+    }
+    return out;
+  }
+
+  // ---- Quote!H26:H31 --------------------------------------------------------------------------
+  // H26 = SUM(H15:H24) ; H30 = (H26+H27−H28)*H29 ; H31 = H26+H27−H28+H30
+  // mode 'exact'  — the sheet, no rounding anywhere (used for regression against the workbook).
+  // mode 'addup'  — the printed document: each line rounds to cents, subtotal is the sum of the
+  //                 rounded lines, tax rounds, total = base + tax. A customer with a calculator
+  //                 gets the same answer as the page.
+  function totals(pricedLines, tripFee, discountAmount, taxRate, mode) {
+    var addup = mode !== 'exact';
+    var lineTotals = pricedLines.map(function (l) { return addup ? roundCents(l.lineTotal) : l.lineTotal; });
+    var subtotal = lineTotals.reduce(function (a, b) { return a + b; }, 0);
+    var trip = num(tripFee), disc = num(discountAmount), rate = num(taxRate);
+    if (addup) subtotal = roundCents(subtotal);            // 226.67 + 165.13 + 40 is 431.79999999999995 in floating point
+    var base = addup ? roundCents(subtotal + trip - disc) : subtotal + trip - disc;
+    var tax = addup ? roundCents(base * rate) : base * rate;
+    var total = addup ? roundCents(base + tax) : base + tax;
+    return { lineTotals: lineTotals, subtotal: subtotal, tripFee: trip, discount: disc, taxRate: rate, tax: tax, total: total };
+  }
+
+  // The only rounding function in the product. Half away from zero, in decimal, so 164.005 → 164.01
+  // (Math.round(164.005*100) gives 164.00 because 164.005*100 is 16400.499999...). toFixed(6) first
+  // strips binary noise, the 'e2' trick shifts in decimal, and Math.round then sees an exact half.
+  function roundCents(x) {
+    x = num(x);
+    var sign = x < 0 ? -1 : 1;
+    var v = Math.abs(x);
+    return sign * (Math.round(Number(v.toFixed(6) + 'e2')) / 100);
+  }
+
+  function indexByName(list) {
+    var m = Object.create(null);
+    (list || []).forEach(function (x) { if (x && !isBlank(x.name)) m[x.name] = x; });
+    return m;
+  }
+
+  var api = {
+    num: num, rates: rates, partPrice: partPrice, taskPrice: taskPrice, warrantyMultiplier: warrantyMultiplier,
+    quoteLine: quoteLine, priceLines: priceLines, totals: totals, roundCents: roundCents, indexByName: indexByName,
+    WORKBOOK_MD5: '4cc6374d67f9040b356e73fb04b47ead'
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else { root.FYS = root.FYS || {}; root.FYS.pricing = api; }
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+/* fireyourSaaS CRM — document format, serialisation and file I/O.
+ *
+ * The product is ONE .html file that carries its own data in
+ *   a script block with id "fys-data" and type application/json
+ * Saving = take the pristine shell of this file (captured before anything rendered) and swap in the
+ * current data block. The live DOM is never serialised.
+ *
+ * The pure half (newDoc / parse / serialise / validate / counts / migrate) has no DOM and is tested in
+ * node. The I/O half (FileIO) wraps the File System Access API with the save model measured on the
+ * Z-Fold: pick the file ONCE per session through the OPEN picker, then write in place silently.
+ * showSaveFilePicker is used only for "Save a copy" (Android auto-renames to "name (1).html").
+ */
+(function (root) {
+  'use strict';
+
+  var SCHEMA = 1;
+  var APP = 'fireyourSaaS CRM';
+  var APP_VERSION = '0.1.0';
+  var DATA_RE = /(<script id="fys-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
+  var END_MARK = 'window.FYS_COMPLETE=true';       // last script in the file; boot refuses a file without it
+  var END_TAG = '<script id="fys-e' + 'nd">' + END_MARK;   // split so this source never contains the tag itself
+
+  function isBlank(v) { return v === null || v === undefined || v === ''; }
+  function nowIso() { return new Date().toISOString(); }
+  function newId() { return Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e9).toString(36); }
+
+  // ---- document -------------------------------------------------------------------------------
+  // settings / parts / tasks: see FORMULA_SPEC.md §1, §3, §4.
+  // quotes[]: { id, number, status: 'draft'|'issued'|'void', createdAt, issuedAt, customer:{name, phone,
+  //             address, email}, lines:[...], tripFee, discount, taxPct (typed percent, e.g. '8.25'), notes, terms,
+  //             snapshot: {pricedLines, totals, warranties} once issued, revisions:[{issuedAt, snapshot, lines,...}] }
+  // priceLog[]: { at, kind: 'part'|'task'|'settings', name, field, from, to } — every price-book edit.
+  function newDoc(sample) {
+    sample = sample || {};
+    return {
+      schema: SCHEMA, app: APP, appVersion: APP_VERSION, createdAt: nowIso(), savedAt: null,
+      business: { name: '', phone: '', email: '', address: '', license: '' },
+      settings: clone(sample.settings || {}),
+      parts: clone(sample.parts || []),
+      tasks: clone(sample.tasks || []),
+      quotes: [],
+      priceLog: [],
+      terms: sample.terms || 'Scope of work: the price includes labor and the listed parts. After-hours / rooftop add-ons apply to the labor only. Prices valid 30 days.'
+    };
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function counts(doc) {
+    return { parts: (doc.parts || []).length, tasks: (doc.tasks || []).length,
+             quotes: (doc.quotes || []).length, priceLog: (doc.priceLog || []).length };
+  }
+
+  // Structural checks only — pricing tolerates blanks, so this guards the SHAPE, not the numbers.
+  function validate(doc) {
+    var errs = [];
+    if (!doc || typeof doc !== 'object') return ['not an object'];
+    if (doc.schema !== SCHEMA) errs.push('schema ' + doc.schema + ' (this app reads ' + SCHEMA + ')');
+    if (!doc.settings || typeof doc.settings !== 'object') errs.push('settings missing');
+    ['parts', 'tasks', 'quotes', 'priceLog'].forEach(function (k) {
+      if (!Array.isArray(doc[k])) errs.push(k + ' is not a list');
+    });
+    if (Array.isArray(doc.parts)) doc.parts.forEach(function (p, i) { if (!p || isBlank(p.name)) errs.push('part ' + i + ' has no name'); });
+    if (Array.isArray(doc.tasks)) doc.tasks.forEach(function (t, i) {
+      if (!t || isBlank(t.name)) errs.push('task ' + i + ' has no name');
+      else if (!Array.isArray(t.parts)) errs.push('task ' + t.name + ' parts is not a list');
+    });
+    if (Array.isArray(doc.quotes)) doc.quotes.forEach(function (q, i) {
+      if (!q || isBlank(q.id)) errs.push('quote ' + i + ' has no id');
+      else if (!Array.isArray(q.lines)) errs.push('quote ' + q.id + ' lines is not a list');
+    });
+    // The counts written at save time must match what is in the file — a cheap truncation/corruption check.
+    if (doc.counts) {
+      var c = counts(doc);
+      ['parts', 'tasks', 'quotes', 'priceLog'].forEach(function (k) {
+        if (doc.counts[k] !== undefined && doc.counts[k] !== c[k]) errs.push(k + ': file says ' + doc.counts[k] + ', found ' + c[k]);
+      });
+    }
+    return errs;
+  }
+
+  // Future schema bumps go here, oldest first. Returns a doc at the current schema or throws.
+  function migrate(doc) {
+    if (!doc || typeof doc !== 'object') throw new Error('not a CRM document');
+    if (doc.schema === undefined) throw new Error('no schema number');
+    if (doc.schema > SCHEMA) throw new Error('made by a newer version (schema ' + doc.schema + ')');
+    // shape defaults, so a hand-edited or older file never crashes a screen
+    if (Array.isArray(doc.quotes)) doc.quotes.forEach(function (q) {
+      if (!q || typeof q !== 'object') return;
+      if (!q.customer || typeof q.customer !== 'object') q.customer = {};
+      if (!Array.isArray(q.lines)) q.lines = [];
+      if (!Array.isArray(q.revisions)) q.revisions = [];
+      if (!q.status) q.status = q.number ? 'issued' : 'draft';
+    });
+    if (!doc.fileId) doc.fileId = newId();                  // identity of THIS file; a copy gets its own
+    return doc;
+  }
+
+  // ---- serialisation ---------------------------------------------------------------------------
+  // JSON inside a script block: a closing script tag inside a string would end the block early, so escape "<" as <
+  // (valid JSON, invisible to JSON.parse). Also U+2028/2029 for old engines.
+  function encode(doc) {
+    doc.savedAt = nowIso();
+    doc.rev = newId();                                         // changes on every save: the stale-save guard compares it
+    doc.app = APP; doc.appVersion = APP_VERSION; doc.schema = SCHEMA;
+    doc.counts = counts(doc);
+    return JSON.stringify(doc).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  }
+
+  // pristine = the shell captured at boot. Result is a complete, self-contained file.
+  function serialise(pristine, doc) {
+    if (!DATA_RE.test(pristine)) throw new Error('shell has no data block');
+    if (pristine.indexOf(END_MARK) < 0) throw new Error('shell has no end marker');
+    var json = encode(doc);
+    var out = pristine.replace(DATA_RE, function (_, a, _b, c) { return a + json + c; });
+    return out;
+  }
+
+  // Reads a whole .html file's text. Returns {doc, errors, complete}; throws if there is no data block.
+  function parse(html) {
+    var m = html.match(DATA_RE);
+    if (!m) throw new Error('not a fireyourSaaS CRM file (no data block)');
+    var doc;
+    try { doc = JSON.parse(m[2]); } catch (e) { throw new Error('data block is damaged: ' + e.message); }
+    var e = html.indexOf(END_TAG);
+    var complete = e > 0 && html.lastIndexOf('</html>') > e;
+    doc = migrate(doc);
+    return { doc: doc, errors: validate(doc), complete: complete };
+  }
+
+  // Import preview: what would come in, without replacing anything.
+  function preview(html) {
+    var r = parse(html);
+    return { counts: counts(r.doc), savedAt: r.doc.savedAt || null, business: (r.doc.business || {}).name || '',
+             appVersion: r.doc.appVersion || '', errors: r.errors, complete: r.complete };
+  }
+
+  // ---- price-book change log --------------------------------------------------------------------
+  function logChange(doc, kind, name, field, from, to) {
+    if (String(from) === String(to)) return;
+    doc.priceLog.push({ at: nowIso(), kind: kind, name: name, field: field, from: from, to: to });
+  }
+
+  // ---- quotes ------------------------------------------------------------------------------------
+  // No stored counter: the next number is one more than the highest issued number in the file.
+  function nextQuoteNumber(doc) {
+    var max = 0;
+    (doc.quotes || []).forEach(function (q) { var n = parseInt(q.number, 10); if (n > max) max = n; });
+    return max + 1;
+  }
+  function formatQuoteNumber(n) { return 'Q-' + ('0000' + n).slice(-4); }
+
+  function newQuote(doc) {
+    return {
+      id: newId(), number: null, status: 'draft', createdAt: nowIso(), issuedAt: null,
+      customer: { name: '', phone: '', address: '', email: '' },
+      lines: [], tripFee: doc.settings.tripFee, discount: '', taxPct: '',
+      notes: '', terms: doc.terms, snapshot: null, revisions: []
+    };
+  }
+
+  // Freezing: the priced lines and totals are copied into the quote so later price-book edits never
+  // change what the customer was told. Re-issuing pushes the old snapshot into revisions.
+  function issueQuote(doc, quote, pricedLines, totals) {
+    if (quote.status === 'issued' && quote.snapshot) {
+      quote.revisions.push({ issuedAt: quote.issuedAt, number: quote.number, lines: clone(quote.lines),
+                             tripFee: quote.tripFee, discount: quote.discount, taxPct: quote.taxPct,
+                             terms: quote.terms, snapshot: quote.snapshot,
+                             accepted: quote.accepted ? clone(quote.accepted) : null });
+    }
+    if (quote.number === null || quote.number === undefined) quote.number = nextQuoteNumber(doc);
+    quote.status = 'issued';
+    quote.issuedAt = nowIso();
+    quote.snapshot = { pricedLines: clone(pricedLines), totals: clone(totals), frozenAt: quote.issuedAt };
+    return quote;
+  }
+
+  // ---- crash cache (browser only) -------------------------------------------------------------
+  // localStorage holds the last unsaved state. It is NEVER the source of truth: on boot, if the cache is
+  // newer than the file and marked dirty, the UI offers it. Every access is wrapped — storage can throw.
+  var CACHE_KEY = 'fys_crm_cache';
+  var cache = {
+    write: function (doc, dirty) {
+      // counts are stamped at save time; a live doc carries the counts of the file it came from, so
+      // refresh them here or validate() rejects the cache the moment a quote was added ("file says 0, found 1")
+      try { doc.counts = counts(doc); root.localStorage.setItem(CACHE_KEY, JSON.stringify({ at: nowIso(), dirty: !!dirty, doc: doc })); return true; }
+      catch (e) { return false; }
+    },
+    read: function () {
+      try { var s = root.localStorage.getItem(CACHE_KEY); return s ? JSON.parse(s) : null; }
+      catch (e) { return null; }
+    },
+    clear: function () { try { root.localStorage.removeItem(CACHE_KEY); } catch (e) {} }
+  };
+
+  // ---- file I/O (browser only) ------------------------------------------------------------------
+  // States: no handle → first save asks "pick your CRM file" (open picker) → handle kept for the session.
+  // Every path resolves to {method: 'inplace'|'copy'|'download', name}. Errors are thrown with .name
+  // 'AbortError' when the user cancelled (the UI stays quiet on those).
+  function FileIO(getPristine) {
+    this.handle = null;
+    this.adopt = false;                                       // next save may take over whichever CRM file is picked
+    this.loadedRev = null;                                    // rev of the file as this tab last read or wrote it
+    this.getPristine = getPristine;
+    this.fileName = (function () {
+      try { var p = decodeURIComponent(root.location.pathname); return p.slice(p.lastIndexOf('/') + 1) || ''; } catch (e) { return ''; }
+    })();
+  }
+  FileIO.prototype.canPick = function () { return typeof root.showOpenFilePicker === 'function'; };
+  // The file handle is remembered in IndexedDB so the picker is needed once per FILE, not once per session.
+  // The browser still asks "Save changes to X?" once per session; that is a prompt, not a file hunt.
+  var DB = 'fys-crm', STORE = 'kv';
+  function kv(mode, fn) {
+    return new Promise(function (resolve, reject) {
+      var idb = root.indexedDB; if (!idb) return resolve(null);
+      var req; try { req = idb.open(DB, 1); } catch (e) { return resolve(null); }
+      req.onupgradeneeded = function () { req.result.createObjectStore(STORE); };
+      req.onerror = function () { resolve(null); };
+      req.onsuccess = function () {
+        var db = req.result, out = null;
+        try {
+          var tx = db.transaction(STORE, mode), r = fn(tx.objectStore(STORE));
+          if (r) r.onsuccess = function () { out = r.result; };
+          tx.oncomplete = function () { db.close(); resolve(out === undefined ? null : out); };
+          tx.onerror = function () { db.close(); resolve(null); };
+        } catch (e) { db.close(); resolve(null); }
+      };
+    });
+  }
+  FileIO.prototype.remember = function (h) { return kv('readwrite', function (s) { return s.put(h, 'handle'); }); };
+  FileIO.prototype.forget = function () { return kv('readwrite', function (s) { return s.delete('handle'); }); };
+  FileIO.prototype.stored = function () { return kv('readonly', function (s) { return s.get('handle'); }); };
+  function headOf(txt) {
+    var m = DATA_RE.exec(txt); if (!m) return undefined;     // not a CRM file
+    try { var d = JSON.parse(m[2]); return { fileId: d.fileId || null, rev: d.rev || null, savedAt: d.savedAt || null }; } catch (e) { return undefined; }
+  }
+  function fileIdOf(txt) { var h = headOf(txt); return h === undefined ? undefined : h.fileId; }
+  // A handle may only be written if the file behind it is THIS file (same fileId, or a never-saved shipped file)
+  // AND nobody else wrote it since this tab loaded it (same rev). A byte-for-byte copy carries the same fileId,
+  // so the rev is what stops a stale copy from silently overwriting the real one.
+  function verify(h, doc, wantName, loadedRev, adopt) {
+    return h.getFile().then(function (f) { return f.text(); }).then(function (txt) {
+      var hd = headOf(txt), e;
+      if (hd === undefined) { e = new Error(h.name + ' is not a CRM file'); e.name = 'NotOurFile'; throw e; }
+      if (!adopt && hd.fileId && doc && doc.fileId && hd.fileId !== doc.fileId) {
+        e = new Error(h.name + ' is a different CRM file. Pick ' + (wantName || 'the file you opened') + '.'); e.name = 'NotOurFile'; throw e;
+      }
+      if (!adopt && loadedRev !== undefined && loadedRev !== null && hd.rev && hd.rev !== loadedRev) {
+        e = new Error(h.name + ' was changed since this tab opened it'); e.name = 'Stale'; e.diskSavedAt = hd.savedAt; throw e;
+      }
+      return h;
+    });
+  }
+  FileIO.prototype.canSaveAs = function () { return typeof root.showSaveFilePicker === 'function'; };
+  FileIO.prototype.suggestedName = function () {
+    var base = (this.fileName && /\.html?$/i.test(this.fileName)) ? this.fileName.replace(/\.html?$/i, '') : 'HVAC-CRM';
+    base = base.replace(/-\d{4}-\d{2}-\d{2}(-\d{4})?$/, '');   // strip an earlier date stamp
+    var d = new Date(), z = function (n) { return ('0' + n).slice(-2); };
+    return base + '-' + d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + '.html';
+  };
+  function writeTo(handle, text) {
+    return handle.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); });
+  }
+  FileIO.prototype.download = function (text, name) {
+    var a = root.document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/html' }));
+    a.download = name;
+    root.document.body.appendChild(a); a.click(); root.document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 10000);
+    return Promise.resolve({ method: 'download', name: name });
+  };
+  // Pick the CRM file (once per session). Verifies it IS a CRM file before it will ever be written.
+  FileIO.prototype.pick = function (doc) {
+    var self = this;
+    return root.showOpenFilePicker({ types: [{ description: 'CRM file', accept: { 'text/html': ['.html', '.htm'] } }] })
+      .then(function (hs) {
+        var h = hs[0];
+        return h.requestPermission({ mode: 'readwrite' }).then(function (perm) {
+          if (perm !== 'granted') { var e = new Error('permission ' + perm); e.name = 'NotAllowedError'; throw e; }
+          return verify(h, doc, self.fileName, self.loadedRev, self.adopt);
+        }).then(function () {
+          self.handle = h; self.fileName = h.name;
+          return self.remember(h).then(function () { return h; }, function () { return h; });
+        });
+      });
+  };
+  // The remembered handle, if it still points at this file and the browser lets us write it. Null otherwise.
+  FileIO.prototype.recall = function (doc) {
+    var self = this;
+    return self.stored().then(function (h) {
+      if (!h || typeof h.requestPermission !== 'function') return null;
+      return h.queryPermission({ mode: 'readwrite' }).then(function (perm) {
+        return perm === 'granted' ? perm : h.requestPermission({ mode: 'readwrite' });
+      }).then(function (perm) {
+        if (perm !== 'granted') return null;
+        return verify(h, doc, self.fileName, self.loadedRev, self.adopt).then(function () { self.handle = h; self.fileName = h.name; return h; });
+      }).then(null, function (e) { if (e && e.name === 'Stale') throw e; return null; });
+    }, function () { return null; });
+  };
+  // Normal save.
+  FileIO.prototype.save = function (doc) {
+    var self = this, text = serialise(self.getPristine(), doc);
+    if (self.handle) {
+      return self.handle.queryPermission({ mode: 'readwrite' }).then(function (perm) {
+        if (perm === 'granted') return perm;
+        return self.handle.requestPermission({ mode: 'readwrite' });
+      }).then(function (perm) {
+        if (perm !== 'granted') { self.handle = null; return self.save(doc); }
+        return verify(self.handle, doc, self.fileName, self.loadedRev, self.adopt).then(function (h) { return self.commit(h, text, doc); });
+      });
+    }
+    if (!self.canPick()) {
+      var ne = new Error('this browser cannot write files'); ne.name = 'NoPicker'; return Promise.reject(ne);
+    }
+    return self.recall(doc).then(function (h) { return h || self.pick(doc); }).then(function (h) { return self.commit(h, text, doc); });
+  };
+  FileIO.prototype.commit = function (h, text, doc) {
+    var self = this;
+    return writeTo(h, text).then(function () { self.loadedRev = doc.rev; self.adopt = false; return { method: 'inplace', name: h.name }; });
+  };
+  // A backup: the same data, stamped so that opening it can never start a second working file.
+  // It carries which file it came from and when, and its own id so it can never overwrite the original.
+  function backupOf(doc, fromName) {
+    var b = clone(doc);
+    b.fileId = newId();
+    b.backup = { of: doc.fileId || null, from: fromName || '', at: nowIso() };
+    return b;
+  }
+  // Promote: this backup becomes the working file. It keeps its own id, so the old file is untouched.
+  function promote(doc) { delete doc.backup; doc.fileId = newId(); return doc; }
+  FileIO.prototype.backupName = function () {
+    var n = this.suggestedName();
+    return n.replace(/\.html$/i, '') + '-backup.html';
+  };
+  FileIO.prototype.saveBackup = function (doc) {
+    var self = this, text = serialise(self.getPristine(), backupOf(doc, self.fileName)), name = self.backupName();
+    if (!self.canSaveAs()) return self.download(text, name);
+    return root.showSaveFilePicker({ suggestedName: name, types: [{ description: 'CRM backup', accept: { 'text/html': ['.html'] } }] })
+      .then(function (h) { return writeTo(h, text).then(function () { return { method: 'copy', name: h.name }; }); });
+  };
+  // "Save a copy": a new WORKING file, never the one open. Save-as picker where offered, else download.
+  FileIO.prototype.saveCopy = function (doc) {
+    var copy = clone(doc); copy.fileId = newId(); delete copy.backup;
+    var self = this, text = serialise(self.getPristine(), copy), name = self.suggestedName();
+    if (!self.canSaveAs()) return self.download(text, name);
+    return root.showSaveFilePicker({ suggestedName: name, types: [{ description: 'CRM file', accept: { 'text/html': ['.html'] } }] })
+      .then(function (h) { return writeTo(h, text).then(function () { return { method: 'copy', name: h.name }; }); });
+  };
+  // Read another CRM file's text (for import). Read-only; no handle kept.
+  FileIO.prototype.readOther = function () {
+    if (this.canPick()) {
+      return root.showOpenFilePicker({ types: [{ description: 'CRM file', accept: { 'text/html': ['.html', '.htm'] } }] })
+        .then(function (hs) { return hs[0].getFile(); }).then(function (f) { return f.text(); });
+    }
+    return new Promise(function (resolve, reject) {
+      var inp = root.document.createElement('input'); inp.type = 'file'; inp.accept = '.html,.htm';
+      inp.onchange = function () {
+        if (!inp.files[0]) { var e = new Error('cancelled'); e.name = 'AbortError'; return reject(e); }
+        var fr = new FileReader(); fr.onload = function () { resolve(fr.result); }; fr.onerror = function () { reject(fr.error); };
+        fr.readAsText(inp.files[0]);
+      };
+      inp.click();
+    });
+  };
+
+  var api = {
+    SCHEMA: SCHEMA, APP: APP, APP_VERSION: APP_VERSION, DATA_RE: DATA_RE, END_MARK: END_MARK,
+    newDoc: newDoc, counts: counts, validate: validate, migrate: migrate, encode: encode, serialise: serialise,
+    parse: parse, preview: preview, logChange: logChange, nextQuoteNumber: nextQuoteNumber,
+    formatQuoteNumber: formatQuoteNumber, newQuote: newQuote, issueQuote: issueQuote, newId: newId, clone: clone,
+    cache: cache, FileIO: FileIO, backupOf: backupOf, promote: promote
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else { root.FYS = root.FYS || {}; root.FYS.store = api; }
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* fireyourSaaS CRM — screens. Plain DOM, no framework. Everything the buyer sees is built here from
+ * the document; pricing.js does the numbers, store.js does the file.
+ *
+ * Rules kept here: short labels; no lectures; the customer page is built ONLY from customerView(),
+ * which whitelists fields — costs, hours, margins and the price book never reach it.
+ */
+(function (root) {
+  'use strict';
+  var P = root.FYS.pricing, S = root.FYS.store;
+
+  var state = { doc: null, dirty: false, screen: 'quotes', quoteId: null, book: 'tasks', edit: null,
+                io: null, cacheTimer: null, prevTotals: null, menuOpen: false, fileName: '' };
+
+  // ---- tiny DOM kit ------------------------------------------------------------------------------
+  function el(tag, attrs, children) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'html') e.innerHTML = v;              // only ever static markup from this file
+      else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
+      else if (k === 'value') e.value = v;
+      else if (k === 'checked' || k === 'disabled' || k === 'hidden' || k === 'selected') e[k] = !!v;
+      else e.setAttribute(k, v);
+    });
+    (children || []).forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); return node; }
+  function money(x) {
+    var v = P.roundCents(x), neg = v < 0; v = Math.abs(v);
+    var s = v.toFixed(2), i = s.indexOf('.'), whole = s.slice(0, i), frac = s.slice(i);
+    whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-$' : '$') + whole + frac;
+  }
+  function pct(x) { var n = P.num(x) * 100; return (Math.round(n * 100) / 100) + '%'; }
+  function numIn(v, min) {
+    if (v === '' || v === null || v === undefined) return '';
+    var n = Number(v); if (!isFinite(n)) return '';
+    return (min !== undefined && min !== null && n < min) ? min : n;
+  }
+  function fmtDate(iso) { if (!iso) return ''; var d = new Date(iso); return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
+  function fmtTime(iso) { var d = new Date(iso); return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg, long) {
+    if (!toastEl) { toastEl = el('div', { class: 'toast' }); document.body.appendChild(toastEl); }
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, long ? 5000 : 2200);
+  }
+
+  function modal(title, body, actions) {
+    var m = el('div', { class: 'modal' });
+    var sheet = el('div', { class: 'sheet' }, [el('h2', { text: title }), body]);
+    var row = el('div', { class: 'actions' });
+    actions.forEach(function (a) {
+      row.appendChild(el('button', { class: 'btn ' + (a.cls || ''), text: a.label, onclick: function () { document.body.removeChild(m); if (a.fn) a.fn(); } }));
+    });
+    sheet.appendChild(row); m.appendChild(sheet);
+    m.addEventListener('click', function (e) { if (e.target === m) document.body.removeChild(m); });
+    document.body.appendChild(m);
+    return m;
+  }
+  function confirmBox(title, text, okLabel, fn, danger) {
+    modal(title, el('p', { text: text }), [{ label: 'Cancel' }, { label: okLabel, cls: danger ? 'danger' : 'primary', fn: fn }]);
+  }
+
+  // ---- state changes -----------------------------------------------------------------------------
+  function touched() {
+    state.dirty = true;
+    clearTimeout(state.cacheTimer);
+    state.cacheTimer = setTimeout(function () { S.cache.write(state.doc, true); }, 400);
+    var b = document.querySelector('header .save'); if (b) b.classList.add('dirty');
+  }
+  // "+ New repair" / "+ New part" creates the record before the editor opens; leaving without a name drops it
+  function dropBlankEdit() {
+    if (!state.edit) return;
+    var list = state.edit.kind === 'task' ? state.doc.tasks : state.edit.kind === 'part' ? state.doc.parts : null;
+    var rec = list && list[state.edit.index];
+    // Only a record that was BORN blank in this sitting is dropped. Clearing the name of a real
+    // record must never delete it - the name is put back by the field itself.
+    if (state.edit.fresh && rec && (rec.name === '' || rec.name === null || rec.name === undefined)) list.splice(state.edit.index, 1);
+  }
+  function nameTaken(list, name, self) {
+    var n = String(name || '').trim().toLowerCase();
+    return list.some(function (x) { return x !== self && String(x.name || '').trim().toLowerCase() === n; });
+  }
+  function indexes() { return { tasks: P.indexByName(state.doc.tasks), parts: P.indexByName(state.doc.parts) }; }
+  function findQuote(id) { for (var i = 0; i < state.doc.quotes.length; i++) if (state.doc.quotes[i].id === id) return state.doc.quotes[i]; return null; }
+
+  // ---- boot ---------------------------------------------------------------------------------------
+  function boot() {
+    var dmg = document.getElementById('damaged'); if (dmg) dmg.style.display = 'none';
+    var raw = document.getElementById('fys-data').textContent, parsed;
+    try { parsed = S.migrate(JSON.parse(raw)); }
+    catch (e) { document.body.appendChild(el('div', { class: 'warn', text: 'This file could not be read: ' + e.message + '. Open your most recent backup copy.' })); return; }
+    var errs = S.validate(parsed);
+    state.doc = parsed;
+    state.io = new S.FileIO(function () { return root.FYS_PRISTINE; });
+    state.io.loadedRev = parsed.rev || null;                    // what is on disk right now, as far as this tab knows
+    state.fileName = state.io.fileName;
+    if (!Array.isArray(state.doc.quotes)) state.doc.quotes = [];
+    if (!Array.isArray(state.doc.priceLog)) state.doc.priceLog = [];
+    if (!state.doc.business) state.doc.business = { name: '', phone: '', email: '', address: '', license: '' };
+    render();
+    if (errs.length) toast('File check: ' + errs[0], true);
+    // crash cache newer than the file?
+    var c = S.cache.read();
+    function gist(d) { var x = JSON.parse(JSON.stringify(d)); delete x.savedAt; delete x.counts; return JSON.stringify(x); }
+    if (c && c.dirty && c.doc && (!state.doc.savedAt || c.at > state.doc.savedAt) && gist(c.doc) !== gist(state.doc)) {
+      showRestoreBanner(c);
+    }
+    root.addEventListener('beforeunload', function (e) { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
+  }
+  function showRestoreBanner(c) {
+    var main = document.querySelector('main'); if (!main) return;
+    var b = el('div', { class: 'banner' }, [
+      el('div', { text: 'Unsaved work from ' + fmtTime(c.at) + ' found.' }),
+      el('div', { class: 'actions2' }, [
+        el('button', { class: 'btn', text: 'Discard', onclick: function () { S.cache.clear(); b.remove(); } }),
+        el('button', { class: 'btn primary', text: 'Restore', onclick: function () {
+          var errs = S.validate(c.doc);
+          if (errs.length) { toast('Cannot restore: ' + errs[0], true); return; }
+          state.doc = c.doc; state.dirty = true; render(); toast('Restored. Tap Save to keep it.');
+        } })
+      ])
+    ]);
+    main.insertBefore(b, main.firstChild);
+  }
+
+  // ---- frame --------------------------------------------------------------------------------------
+  var renderQueued = false;
+  // Re-render after the browser has moved focus to the field the user tapped next; render() then puts
+  // focus back on its replacement. Used by handlers that fire on 'change' (= the moment focus leaves).
+  function queueRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+    setTimeout(function () { renderQueued = false; render(); }, 0);
+  }
+  function render() {
+    var active = document.activeElement, key = active && active.getAttribute ? active.getAttribute('data-k') : null;
+    var selStart = null;
+    try { if (key && active.type !== 'number' && active.tagName !== 'SELECT') selStart = active.selectionStart; } catch (e) {}
+    var y = root.scrollY;
+    renderInner();
+    if (key) {
+      var next = document.querySelector('[data-k="' + key.replace(/"/g, '') + '"]');
+      if (next) {
+        try { next.focus({ preventScroll: true }); if (selStart !== null) next.setSelectionRange(selStart, selStart); } catch (e) {}
+      }
+    }
+    root.scrollTo(0, y);
+  }
+  function renderInner() {
+    var app = clear(document.getElementById('app'));
+    app.appendChild(header());
+    if (state.doc.backup) {
+      app.appendChild(el('div', { class: 'backupbar' }, [
+        el('div', { class: 'txt', text: 'Backup' + (state.doc.backup.from ? ' of ' + state.doc.backup.from : '') +
+          (state.doc.backup.at ? ' from ' + fmtTime(state.doc.backup.at) : '') + '. Look, print, but work in your main file.' }),
+        el('button', { class: 'btn small', text: 'Use this one', onclick: promoteBackup })
+      ]));
+    }
+    var main = el('main');
+    app.appendChild(main);
+    if (state.screen === 'quotes') main.appendChild(state.quoteId ? quoteEditor(main) : quoteList());
+    else if (state.screen === 'book') main.appendChild(bookScreen());
+    else if (state.screen === 'setup') main.appendChild(setupScreen());
+    app.appendChild(nav());
+  }
+  function header() {
+    var title = state.doc.business.name || 'HVAC CRM';
+    if (state.screen === 'quotes' && state.quoteId) { var q = findQuote(state.quoteId); title = q && q.number ? S.formatQuoteNumber(q.number) : 'New quote'; }
+    var back = (state.screen === 'quotes' && state.quoteId) || state.edit
+      ? el('button', { class: 'icon', text: '‹', 'aria-label': 'Back', onclick: function () { dropBlankEdit(); state.edit = null; state.quoteId = null; render(); } }) : null;
+    return el('header', { class: 'bar' }, [
+      back,
+      el('div', { class: 'title', text: title }),
+      el('button', { class: 'save' + (state.dirty ? ' dirty' : ''), text: 'Save', onclick: doSave }),
+      el('button', { class: 'icon', text: '⋮', 'aria-label': 'Menu', onclick: openMenu })
+    ]);
+  }
+  function nav() {
+    function tab(key, label) {
+      return el('button', { class: state.screen === key ? 'on' : '', text: label, onclick: function () { dropBlankEdit(); state.screen = key; state.quoteId = null; state.edit = null; render(); } });
+    }
+    return el('nav', { class: 'tabs' }, [tab('quotes', 'Quotes'), tab('book', 'Price book'), tab('setup', 'Setup')]);
+  }
+  function openMenu() {
+    var q = state.screen === 'quotes' && state.quoteId ? findQuote(state.quoteId) : null;
+    var items = [
+      { label: 'Save', fn: doSave },
+      state.doc.backup ? null : { label: 'Back this file up…', fn: doBackup },
+      { label: 'Save a copy', fn: doSaveCopy },
+      { label: 'Import a CRM file…', fn: doImport },
+      { sep: true },
+      q ? { label: 'Print / PDF', fn: function () { printQuote(q); } } : null,
+      q && q.status === 'issued' ? { label: 'Void this quote', fn: function () { voidQuote(q); } } : null,
+      q && q.status === 'draft' ? { label: 'Delete this draft', fn: function () { deleteQuote(q); } } : null,
+      q ? { sep: true } : null,
+      { label: 'About this file', fn: about }
+    ].filter(Boolean);
+    var menu = el('div', { class: 'menu' });
+    var backdrop = el('div', { class: 'backdrop', onclick: closeAll });
+    function closeAll() { menu.remove(); backdrop.remove(); }
+    items.forEach(function (it) {
+      if (it.sep) { menu.appendChild(el('div', { class: 'sep' })); return; }
+      menu.appendChild(el('button', { text: it.label, onclick: function () { closeAll(); it.fn(); } }));
+    });
+    document.body.appendChild(backdrop); document.body.appendChild(menu);
+  }
+  function about() {
+    var c = S.counts(state.doc);
+    modal('About this file', el('dl', { class: 'dl' }, [
+      el('dt', { text: 'File' }), el('dd', { text: state.io.fileName || '(this page)' }),
+      el('dt', { text: 'Last saved' }), el('dd', { text: state.doc.savedAt ? fmtTime(state.doc.savedAt) : 'never' }),
+      el('dt', { text: 'Quotes' }), el('dd', { text: String(c.quotes) }),
+      el('dt', { text: 'Repairs / parts' }), el('dd', { text: c.tasks + ' / ' + c.parts }),
+      el('dt', { text: 'Price changes logged' }), el('dd', { text: String(c.priceLog) }),
+      el('dt', { text: 'Version' }), el('dd', { text: S.APP_VERSION }),
+      el('dt', { text: 'This file is' }), el('dd', { text: state.doc.backup ? 'a backup' + (state.doc.backup.from ? ' of ' + state.doc.backup.from : '') + (state.doc.backup.at ? ', made ' + fmtTime(state.doc.backup.at) : '') : 'your working file' }),
+      el('dt', { text: 'Where the data is' }), el('dd', { text: 'inside this file only' })
+    ]), [{ label: 'Close' }]);
+  }
+
+  // ---- save / copy / import ------------------------------------------------------------------------
+  // A backup will not save over itself or anything else until the owner says it is now the real file.
+  function promoteBackup() {
+    var b = state.doc.backup || {};
+    modal('Make this your main file?', el('p', { text: 'This is a backup' + (b.from ? ' of ' + b.from : '') +
+      (b.at ? ' from ' + fmtTime(b.at) : '') + '. Use it when the file you were working in is gone or damaged. ' +
+      'It becomes a file of its own — whatever it was copied from is left alone.' }), [
+      { label: 'Cancel' },
+      { label: 'Yes, use this one', cls: 'primary', fn: function () {
+        S.promote(state.doc); state.io.handle = null; state.io.loadedRev = null; state.io.adopt = true; touched(); render();
+        toast('This is now your main file. Tap Save to keep it.');
+      } }]);
+  }
+  function doSave() {
+    if (state.doc.backup) { promoteBackup(); return; }
+    // Served over http (the PC drop box, or a hosted preview): the browser will not write a file in place, so Save
+    // would only ever make downloads. Say so instead of making a copy per tap.
+    if (!state.io.canPick() && /^https?:$/.test(location.protocol)) {
+      modal('Not a file yet', el('p', { text: 'This copy is running from the PC, not from a file on this phone, so it cannot be saved in place. ' +
+        'Your work is kept in this tab. To keep it for good, save a copy once, open that file, and work from it.' }), [
+        { label: 'Close' }, { label: 'Save a copy', cls: 'primary', fn: doSaveCopy }]);
+      return;
+    }
+    state.io.save(state.doc).then(function (r) {
+      state.dirty = false; S.cache.clear();
+      var b = document.querySelector('header .save'); if (b) b.classList.remove('dirty');
+      if (r.method === 'inplace') toast('Saved into ' + r.name);
+      else toast('Saved a copy to Downloads: ' + r.name, true);
+    }, function (e) {
+      if (e && e.name === 'AbortError') return;
+      if (e && e.name === 'NoPicker') {
+        modal('This browser cannot save files', el('p', { text: 'Chrome on Android and on Windows can write this file in place; the browser you are in cannot. ' +
+          'Your work is safe in this tab. Open the file in Chrome, or save a copy and carry on there.' }), [
+          { label: 'Close' }, { label: 'Save a copy', cls: 'primary', fn: doSaveCopy }]);
+        return;
+      }
+      if (e && e.name === 'NotOurFile') {
+        modal('That is not the same file', el('p', { text: e.message + ' Your work is safe in this tab.' }), [
+          { label: 'Cancel' },
+          { label: 'Save a copy', fn: doSaveCopy },
+          { label: 'Pick again', cls: 'primary', fn: function () { state.io.handle = null; state.io.forget(); doSave(); } }
+        ]);
+        return;
+      }
+      if (e && e.name === 'Stale') {
+        // Somebody (a sync tool, another device, an older copy of this tab) wrote the file after this tab read it.
+        // Never overwrite that quietly; never lose this tab's work either (it stays here and in the crash cache).
+        modal('File changed on disk', el('p', { text: (state.io.fileName || 'The file') + ' was saved by something else ' +
+          (e.diskSavedAt ? 'at ' + fmtTime(e.diskSavedAt) + ' ' : '') + 'after this tab opened it. Saving now would replace that with what is in this tab. ' +
+          'Your work stays here until you decide.' }), [
+          { label: 'Cancel' },
+          { label: 'Save a copy', fn: doSaveCopy },
+          { label: 'Replace it', cls: 'danger', fn: function () { state.io.loadedRev = null; doSave(); } }]);
+        return;
+      }
+      // Could not write in place. Never a silent copy: the crash cache holds the work, the owner decides.
+      state.io.forget();
+      modal('Could not save', el('p', { text: 'The file could not be written (' + (e && e.name) + '). Your changes are kept in this tab. ' +
+        'Try again and pick ' + (state.io.fileName || 'the file you opened') + ', or save a copy to a new file.' }), [
+        { label: 'Save a copy', fn: doSaveCopy },
+        { label: 'Try again', cls: 'primary', fn: function () { state.io.handle = null; doSave(); } }
+      ]);
+    });
+  }
+  function doBackup() {
+    state.io.saveBackup(state.doc).then(function (r) {
+      toast(r.method === 'download' ? 'Backup saved to Downloads: ' + r.name : 'Backup saved: ' + r.name);
+    }, function (e) {
+      if (e && e.name === 'AbortError') return;
+      state.io.download(S.serialise(root.FYS_PRISTINE, S.backupOf(state.doc, state.io.fileName)), state.io.backupName()).then(function (r) {
+        toast('Backup saved to Downloads: ' + r.name);
+      }, function () { toast('Backup failed: ' + (e && e.message), true); });
+    });
+  }
+  function doSaveCopy() {
+    state.io.saveCopy(state.doc).then(function (r) {
+      toast(r.method === 'download' ? 'Copy saved to Downloads: ' + r.name : 'Copy saved: ' + r.name, true);
+    }, function (e) {
+      if (e && e.name === 'AbortError') return;
+      state.io.download(S.serialise(root.FYS_PRISTINE, state.doc), state.io.suggestedName()).then(function (r) {
+        toast('Copy saved to Downloads: ' + r.name, true);
+      }, function () { toast('Copy failed: ' + (e && e.message), true); });
+    });
+  }
+  function doImport() {
+    state.io.readOther().then(function (txt) {
+      var pv;
+      try { pv = S.preview(txt); } catch (e) { toast(e.message, true); return; }
+      var body = el('div', {}, [
+        el('dl', { class: 'dl' }, [
+          el('dt', { text: 'Business' }), el('dd', { text: pv.business || '(none)' }),
+          el('dt', { text: 'Saved' }), el('dd', { text: pv.savedAt ? fmtTime(pv.savedAt) : 'never' }),
+          el('dt', { text: 'Quotes' }), el('dd', { text: String(pv.counts.quotes) }),
+          el('dt', { text: 'Repairs / parts' }), el('dd', { text: pv.counts.tasks + ' / ' + pv.counts.parts }),
+          el('dt', { text: 'Complete file' }), el('dd', { text: pv.complete ? 'yes' : 'NO - cut short' })
+        ]),
+        pv.errors.length ? el('div', { class: 'warn', text: 'Problems: ' + pv.errors.join('; ') }) : null,
+        el('p', { class: 'small muted', text: 'Replaces everything in this file. Save afterwards to keep it.' })
+      ]);
+      modal('Import this file?', body, [{ label: 'Cancel' }, { label: 'Replace', cls: 'primary', fn: function () {
+        state.doc = S.parse(txt).doc; state.quoteId = null; state.edit = null;
+        state.io.adopt = true; state.io.loadedRev = null;      // this document may now take over the file you save it into
+        touched(); render(); toast('Imported. Tap Save to keep it.');
+      } }]);
+    }, function (e) { if (!e || e.name !== 'AbortError') toast('Could not read that file: ' + (e && e.message), true); });
+  }
+
+  // ---- quotes list ------------------------------------------------------------------------------------
+  function quoteTotal(q) {
+    if (q.snapshot && q.status !== 'draft') return q.snapshot.totals.total;
+    var ix = indexes();
+    return P.totals(P.priceLines(q.lines, state.doc.settings, ix.tasks, ix.parts), q.tripFee, q.discount, P.num(q.taxPct) / 100).total;
+  }
+  function quoteList() {
+    var wrap = el('div');
+    if (!state.doc.business.name) {
+      wrap.appendChild(el('div', { class: 'warn' }, [
+        el('span', { text: 'Your business name, phone and rates are not set. They go on every quote. ' }),
+        el('button', { class: 'btn small', text: 'Open Setup', onclick: function () { state.screen = 'setup'; state.quoteId = null; render(); } })]));
+    }
+    wrap.appendChild(el('button', { class: 'btn primary wide', text: '+ New quote', onclick: function () {
+      var q = S.newQuote(state.doc); state.doc.quotes.push(q); state.quoteId = q.id; touched(); render();
+    } }));
+    var qs = state.doc.quotes.slice().reverse();
+    if (!qs.length) { wrap.appendChild(el('div', { class: 'empty', text: 'No quotes yet.' })); return wrap; }
+    var list = el('div', { class: 'list' });
+    qs.forEach(function (q) {
+      list.appendChild(el('button', { class: 'item', onclick: function () { state.quoteId = q.id; render(); } }, [
+        el('div', { class: 'main' }, [
+          el('div', { class: 'name', text: (q.customer.name || 'No name') }),
+          el('div', { class: 'small muted', text: (q.number ? S.formatQuoteNumber(q.number) + ' · ' : '') + fmtDate(q.issuedAt || q.createdAt) })
+        ]),
+        el('span', { class: 'chip ' + q.status, text: q.status === 'issued' ? 'locked' : q.status }),
+        el('div', { class: 'money', text: money(quoteTotal(q)) })
+      ]));
+    });
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  // ---- quote editor ------------------------------------------------------------------------------------
+  function quoteEditor() {
+    var q = findQuote(state.quoteId);
+    if (!q) { state.quoteId = null; return quoteList(); }
+    var ix = indexes(), s = state.doc.settings;
+    var frozen = q.status !== 'draft' && q.snapshot;
+    var editable = q.status !== 'void';
+    var wrap = el('div');
+
+    if (q.status === 'issued') {
+      var edited = q.editedAt && q.editedAt > q.issuedAt;
+      wrap.appendChild(el('div', { class: 'frozen', text: 'Locked ' + fmtTime(q.issuedAt) + ' at ' + money(q.snapshot.totals.total) +
+        '. Nothing is sent - print or share it yourself.' +
+        (edited ? ' Changed since - tap Lock again to use the new prices.' : '') + (q.revisions.length ? ' Locked ' + (q.revisions.length + 1) + ' times.' : '') }));
+    }
+    if (q.status === 'void') wrap.appendChild(el('div', { class: 'frozen', text: 'Void. Kept for the record.' }));
+    if (hasSig(q.accepted)) {
+      wrap.appendChild(el('div', { class: 'frozen accepted' }, [
+        el('div', { text: 'Accepted by ' + (q.accepted.name || 'customer') + ' ' + fmtTime(q.accepted.signedAt) + '.' }),
+        sigNode(q.accepted, 132, 48)]));
+    }
+
+    // customer
+    var cust = el('div', { class: 'card' });
+    function cf(key, label, type) {
+      return el('div', { class: 'field' }, [el('label', { text: label }),
+        el('input', { type: type || 'text', value: q.customer[key] || '', disabled: !editable, autocomplete: 'off', 'data-k': 'c.' + key,
+                      onchange: function (e) { q.customer[key] = e.target.value; q.editedAt = new Date().toISOString(); touched(); } })]);
+    }
+    cust.appendChild(cf('name', 'Customer'));
+    cust.appendChild(el('div', { class: 'grid2' }, [cf('phone', 'Phone', 'tel'), cf('email', 'Email', 'email')]));
+    cust.appendChild(cf('address', 'Address'));
+    wrap.appendChild(cust);
+
+    // lines
+    wrap.appendChild(el('h3', { text: 'Repairs' }));
+    var priced = P.priceLines(q.lines, s, ix.tasks, ix.parts);
+    var linesEl = el('div', { class: 'lines' });
+    var prev = state.prevTotals || [];
+    q.lines.forEach(function (ln, i) {
+      var pr = priced[i];
+      var changed = prev.length && prev[i] !== undefined && Math.abs(prev[i] - pr.lineTotal) > 0.004;
+      var card = el('div', { class: 'line' + (changed ? ' changed' : '') });
+      function upd(fn) { return function (e) { fn(e); q.editedAt = new Date().toISOString(); state.prevTotals = priced.map(function (p) { return p.lineTotal; }); touched(); queueRender(); }; }
+      var top = el('div', { class: 'top' });
+      if (ln.freeform) {
+        top.appendChild(el('input', { type: 'text', placeholder: 'Description', value: ln.description || '', disabled: !editable, 'data-k': 'l' + i + '.desc',
+                                      onchange: upd(function (e) { ln.description = e.target.value; }) }));
+      } else {
+        var shown = ln.task && !ix.tasks[ln.task] ? ln.task + ' (not in book)' : ln.task;
+        top.appendChild(pickBtn('Pick a repair…', ln.task, shown, grouped(state.doc.tasks), upd(function (name) { ln.task = name; }),
+                                { disabled: !editable, 'data-k': 'l' + i + '.task' }));
+      }
+      if (editable) top.appendChild(el('button', { class: 'x', text: '✕', 'aria-label': 'Remove', onclick: function () {
+        q.lines.splice(i, 1); q.editedAt = new Date().toISOString(); state.prevTotals = null; touched(); render();   // indices shift: no flash
+      } }));
+      card.appendChild(top);
+
+      var opts = el('div', { class: 'opts' });
+      opts.appendChild(el('input', { class: 'qty', type: 'number', inputmode: 'decimal', min: '0', step: 'any', placeholder: 'Qty 1', value: ln.qty === undefined || ln.qty === null ? '' : ln.qty,
+                                     disabled: !editable, 'data-k': 'l' + i + '.qty', onchange: upd(function (e) { ln.qty = numIn(e.target.value, 0); }) }));
+      if (ln.freeform) {
+        opts.appendChild(el('input', { type: 'number', inputmode: 'decimal', min: '0', step: 'any', placeholder: 'Price', value: ln.price === undefined || ln.price === null ? '' : ln.price,
+                                       disabled: !editable, style: 'width:120px', 'data-k': 'l' + i + '.price', onchange: upd(function (e) { ln.price = numIn(e.target.value, 0); }) }));
+      } else {
+        opts.appendChild(el('button', { class: 'toggle' + (ln.afterHours ? ' on' : ''), text: 'After-hrs', disabled: !editable, onclick: upd(function () { ln.afterHours = !ln.afterHours; }) }));
+        opts.appendChild(el('button', { class: 'toggle' + (ln.attic ? ' on' : ''), text: 'Attic / roof', disabled: !editable, onclick: upd(function () { ln.attic = !ln.attic; }) }));
+        var w = el('select', { class: 'warranty', disabled: !editable, 'data-k': 'l' + i + '.warranty', onchange: upd(function (e) { ln.warranty = e.target.value; }) });
+        w.appendChild(el('option', { value: '', text: 'Warranty: standard' }));
+        (s.warranties || []).forEach(function (wt, wi) {
+          if (!wt || !wt.label) return;                       // a tier with no label yet is not offered
+          w.appendChild(el('option', { value: wt.label, text: wt.label + (wi ? ' (×' + wt.multiplier + ')' : ''), selected: wt.label === ln.warranty }));
+        });
+        if (ln.warranty && !(s.warranties || []).some(function (wt) { return wt && wt.label === ln.warranty; })) {
+          w.appendChild(el('option', { value: ln.warranty, text: ln.warranty + ' (no longer offered)', selected: true }));
+        }
+        opts.appendChild(w);
+      }
+      card.appendChild(opts);
+
+      var detail = [];
+      if (!ln.freeform && pr.unknownTask) detail.push('not in the price book');
+      if (pr.discountApplied && pr.discount) detail.push('repeat −' + money(pr.discount * pr.warrantyMultiplier));
+      if (pr.warrantyMultiplier !== 1) detail.push('warranty ×' + pr.warrantyMultiplier);
+      if (pr.surcharge) detail.push('add-on +' + money(pr.surcharge));
+      if (pr.qty !== 1) detail.push(pr.qty + ' × ' + money(pr.unitPrice + pr.surcharge));
+      card.appendChild(el('div', { class: 'price' }, [
+        el('span', { class: 'detail', text: detail.join(' · ') }),
+        el('span', { class: 'money', text: money(pr.lineTotal) })
+      ]));
+      linesEl.appendChild(card);
+    });
+    state.prevTotals = null;
+    wrap.appendChild(linesEl);
+    if (editable) {
+      wrap.appendChild(el('div', { class: 'actions2' }, [
+        el('button', { class: 'btn', text: '+ Repair', onclick: function () { q.lines.push({ task: '', qty: '', afterHours: false, attic: false, warranty: '' }); q.editedAt = new Date().toISOString(); touched(); render(); } }),
+        el('button', { class: 'btn', text: '+ Other item', onclick: function () { q.lines.push({ freeform: true, description: '', price: '', qty: '' }); q.editedAt = new Date().toISOString(); touched(); render(); } })
+      ]));
+    }
+
+    // totals
+    var tot = P.totals(priced, q.tripFee, q.discount, P.num(q.taxPct) / 100);
+    var t = el('div', { class: 'totals', style: 'margin-top:12px' });
+    function trow(label, node, cls) { return el('div', { class: 'row ' + (cls || '') }, [el('span', { class: 'grow', text: label }), node]); }
+    function tin(key, placeholder) {
+      return el('input', { type: 'number', inputmode: 'decimal', min: '0', step: 'any', placeholder: placeholder || '', value: q[key] === '' || q[key] === null || q[key] === undefined ? '' : q[key],
+                           disabled: !editable, 'data-k': 'q.' + key, onchange: function (e) { q[key] = numIn(e.target.value, 0); q.editedAt = new Date().toISOString(); touched(); queueRender(); } });
+    }
+    t.appendChild(trow('Repairs', el('span', { class: 'money', text: money(tot.subtotal) })));
+    t.appendChild(trow('Trip fee', tin('tripFee', '0')));
+    t.appendChild(trow('Discount', tin('discount', '0')));
+    t.appendChild(trow('Tax %', tin('taxPct', '0')));
+    t.appendChild(trow('Tax', el('span', { class: 'money', text: money(tot.tax) })));
+    t.appendChild(trow('TOTAL', el('span', { class: 'money', text: money(tot.total) }), 'grand'));
+    wrap.appendChild(t);
+
+    if (frozen) {
+      var st = q.snapshot.totals;
+      if (Math.abs(st.total - tot.total) > 0.004) wrap.appendChild(el('div', { class: 'warn', text: 'You quoted ' + money(st.total) + '. The price book now says ' + money(tot.total) + '. The printout keeps ' + money(st.total) + ' until you tap Lock again.' }));
+    }
+
+    // actions
+    var acts = el('div', { class: 'actions2' });
+    acts.appendChild(el('button', { class: 'btn navy', text: 'Print / PDF', onclick: function () { printQuote(q); } }));
+    if (editable) acts.appendChild(el('button', { class: 'btn primary', text: q.status === 'issued' ? 'Lock again' : 'Lock this quote', onclick: function () { issue(q, priced, tot); } }));
+    wrap.appendChild(acts);
+    if (q.status === 'issued' && !hasSig(q.accepted) && !(q.editedAt && q.editedAt > q.issuedAt)) {
+      wrap.appendChild(el('div', { class: 'actions2', style: 'margin-top:8px' }, [
+        el('button', { class: 'btn', text: 'Customer signs', onclick: function () { signQuote(q); } })]));
+    }
+
+    wrap.appendChild(el('div', { class: 'field', style: 'margin-top:12px' }, [el('label', { text: 'Notes (not printed)' }),
+      el('textarea', { value: q.notes || '', disabled: !editable, 'data-k': 'q.notes', onchange: function (e) { q.notes = e.target.value; touched(); } })]));
+    return wrap;
+  }
+  // Everything that would put a wrong number in front of a customer. Used by BOTH Lock and Print,
+  // so a line with no price can never be printed just because Print skipped the check.
+  function quoteProblems(q, priced, tot) {
+    if (!state.doc.business.name) return 'Put your business name in Setup first - it goes at the top of the page.';
+    for (var i = 0; i < priced.length; i++) {
+      if (priced[i].unknownTask) return 'Line ' + (i + 1) + ' is not in the price book. Pick a repair for it or remove it.';
+      if (q.lines[i] && q.lines[i].freeform && !P.num(q.lines[i].price)) return 'Line ' + (i + 1) + ' (' + (q.lines[i].description || 'other item') + ') has no price.';
+    }
+    if (!q.lines.length || priced.every(function (p) { return !p.lineTotal; })) return 'Add a repair first.';
+    if (tot && tot.total < 0) return 'The discount is bigger than the job. Lower it.';
+    return null;
+  }
+  function issue(q, priced, tot) {
+    var bad = quoteProblems(q, priced, tot);
+    if (bad) { toast(bad, true); return; }
+    var n = q.number || S.nextQuoteNumber(state.doc);
+    var sig = q.accepted && q.accepted.signature ? ' This clears ' + (q.accepted.name || 'the customer') + '\'s signature - they sign the new price.' : '';
+    confirmBox('Lock ' + S.formatQuoteNumber(n) + '?', 'Total ' + money(tot.total) + '. The price stops moving after this. You can change it and lock again.' + sig, 'Lock', function () {
+      S.issueQuote(state.doc, q, priced, tot);
+      q.accepted = null;
+      q.editedAt = null; touched(); render(); toast('Locked ' + S.formatQuoteNumber(q.number) + '. Tap Save.');
+    });
+  }
+  // The customer signs on the phone; the signature and name live in the quote and print on the page.
+  // ---- signature ---------------------------------------------------------------------------------
+  // Stored shape: { w, h, strokes: [[x,y,x,y,...], ...] }, integers, in pad coordinates. A whole signature
+  // is about a kilobyte. Older files hold a PNG data URL in `signature` instead; both are drawn.
+  var SIG_W = 600, SIG_H = 220;
+  function drawSig(ctx, sig, w, h) {
+    var sx = w / (sig.w || SIG_W), sy = h / (sig.h || SIG_H), s = Math.min(sx, sy);
+    ctx.save();
+    ctx.lineWidth = Math.max(1.4, 3 * s); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111';
+    (sig.strokes || []).forEach(function (pts) {
+      if (pts.length < 2) return;
+      ctx.beginPath(); ctx.moveTo(pts[0] * sx, pts[1] * sy);
+      if (pts.length === 2) ctx.lineTo(pts[0] * sx + 0.6, pts[1] * sy);          // a dot still shows
+      for (var i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i] * sx, pts[i + 1] * sy);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+  // One <canvas> holding a stored signature, sized in CSS pixels, drawn at the device's real resolution.
+  function sigNode(acc, w, h) {
+    if (!acc) return null;
+    if (acc.signature) return el('img', { class: 'sig', alt: 'signature', src: acc.signature });   // older files
+    if (!acc.sig) return null;
+    var r = Math.min(root.devicePixelRatio || 1, 3);
+    var c = el('canvas', { class: 'sig', width: String(Math.round(w * r)), height: String(Math.round(h * r)),
+                           style: 'width:' + w + 'px;height:' + h + 'px', 'aria-label': 'signature' });
+    var x = c.getContext('2d'); x.scale(r, r);
+    drawSig(x, acc.sig, w, h);
+    return c;
+  }
+  function hasSig(a) { return !!(a && (a.sig && a.sig.strokes && a.sig.strokes.length || a.signature)); }
+  function signQuote(q) {
+    var canvas = el('canvas', { class: 'pad', width: String(SIG_W), height: String(SIG_H) }), ctx = canvas.getContext('2d');
+    var strokes = [], cur = null, drawing = false;
+    ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111';
+    function pos(e) { var r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * canvas.width / r.width, y: (e.clientY - r.top) * canvas.height / r.height }; }
+    canvas.addEventListener('pointerdown', function (e) {
+      drawing = true; var p = pos(e); cur = [Math.round(p.x), Math.round(p.y)]; strokes.push(cur);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); canvas.setPointerCapture(e.pointerId); e.preventDefault();
+    });
+    canvas.addEventListener('pointermove', function (e) {
+      if (!drawing) return;
+      var p = pos(e), x = Math.round(p.x), y = Math.round(p.y);
+      // Skip points the eye cannot tell apart: same ink, a third of the size.
+      if (cur.length >= 2 && Math.abs(x - cur[cur.length - 2]) < 2 && Math.abs(y - cur[cur.length - 1]) < 2) return;
+      cur.push(x, y); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault();
+    });
+    function up() { drawing = false; }
+    canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+    var name = el('input', { type: 'text', placeholder: 'Customer name', value: q.customer.name || '', autocomplete: 'off' });
+    var body = el('div', {}, [
+      el('p', { text: 'Total ' + money(customerView(q).total) + '. Sign below to accept.' }),
+      canvas,
+      el('div', { class: 'actions2', style: 'margin:6px 0 10px' }, [el('button', { class: 'btn', text: 'Clear', onclick: function () { ctx.clearRect(0, 0, canvas.width, canvas.height); strokes = []; cur = null; } })]),
+      el('div', { class: 'field' }, [el('label', { text: 'Name' }), name])
+    ]);
+    modal('Customer acceptance', body, [{ label: 'Cancel' }, { label: 'Accept', cls: 'primary', fn: function () {
+      var ink = strokes.filter(function (s) { return s.length >= 2; });
+      if (!ink.length) { toast('No signature yet.'); signQuote(q); return; }
+      q.accepted = { name: name.value.trim(), signedAt: new Date().toISOString(), sig: { w: SIG_W, h: SIG_H, strokes: ink } };
+      if (!q.customer.name && q.accepted.name) q.customer.name = q.accepted.name;
+      touched(); render(); toast('Accepted. Tap Save.');
+    } }]);
+  }
+  function voidQuote(q) {
+    confirmBox('Void ' + S.formatQuoteNumber(q.number) + '?', 'It stays in the list, marked void.', 'Void', function () { q.status = 'void'; touched(); render(); }, true);
+  }
+  function deleteQuote(q) {
+    if (q.status !== 'draft') return;                        // issued numbers are never reused: void, do not delete
+    confirmBox('Delete this draft?', 'It will be gone.', 'Delete', function () {
+      state.doc.quotes = state.doc.quotes.filter(function (x) { return x.id !== q.id; }); state.quoteId = null; touched(); render();
+    }, true);
+  }
+
+  // ---- customer page --------------------------------------------------------------------------------------
+  // The ONLY path to the customer. Whitelisted fields; nothing about cost, hours, parts or margin.
+  function customerView(q) {
+    var b = state.doc.business || {};
+    var snap = q.status !== 'draft' && q.snapshot ? q.snapshot : null;
+    var ix = indexes();
+    var priced = snap ? snap.pricedLines : P.priceLines(q.lines, state.doc.settings, ix.tasks, ix.parts);
+    var tot = snap ? snap.totals : P.totals(priced, q.tripFee, q.discount, P.num(q.taxPct) / 100);
+    var lines = priced.map(function (p, i) {
+      var notes = [];
+      if (p.afterHours) notes.push('after-hours');
+      if (p.attic) notes.push('attic / rooftop');
+      if (p.warranty) notes.push(p.warranty);
+      return { description: p.description || '', qty: p.qty, amount: tot.lineTotals[i], note: notes.join(' · ') };
+    }).filter(function (l) { return l.description || l.amount; });
+    return {
+      business: { name: b.name || '', phone: b.phone || '', email: b.email || '', address: b.address || '', license: b.license || '' },
+      number: q.number ? S.formatQuoteNumber(q.number) : '', draft: q.status === 'draft', voided: q.status === 'void',
+      date: fmtDate(q.issuedAt || q.createdAt),
+      customer: { name: q.customer.name || '', phone: q.customer.phone || '', email: q.customer.email || '', address: q.customer.address || '' },
+      lines: lines, subtotal: tot.subtotal, tripFee: tot.tripFee, discount: tot.discount, taxPct: q.taxPct, tax: tot.tax, total: tot.total,
+      terms: q.terms || state.doc.terms || '',
+      accepted: hasSig(q.accepted) ? { name: q.accepted.name || '', date: fmtDate(q.accepted.signedAt), signature: q.accepted.signature || null, sig: q.accepted.sig || null } : null
+    };
+  }
+  function renderPrint(v) {
+    var pr = clear(document.getElementById('print'));
+    pr.appendChild(el('div', { class: 'head' }, [
+      el('div', { class: 'biz' }, [
+        el('div', { class: 'name', text: v.business.name || 'Quote' }),
+        v.business.address ? el('div', { text: v.business.address }) : null,
+        el('div', { text: [v.business.phone, v.business.email].filter(Boolean).join(' · ') }),
+        v.business.license ? el('div', { text: 'License ' + v.business.license }) : null
+      ]),
+      el('div', { class: 'qmeta' }, [
+        el('div', { class: 'n', text: v.draft ? 'ESTIMATE (draft)' : (v.voided ? 'VOID ' : 'Quote ') + v.number }),
+        el('div', { text: v.date })
+      ])
+    ]));
+    pr.appendChild(el('div', { class: 'cust' }, [
+      el('div', { class: 'label', text: 'Prepared for' }),
+      el('div', { text: v.customer.name }),
+      v.customer.address ? el('div', { text: v.customer.address }) : null,
+      el('div', { text: [v.customer.phone, v.customer.email].filter(Boolean).join(' · ') })
+    ]));
+    var tbl = el('table');
+    tbl.appendChild(el('thead', {}, [el('tr', {}, [el('th', { text: 'Work' }), el('th', { class: 'n', text: 'Qty' }), el('th', { class: 'n', text: 'Amount' })])]));
+    var tb = el('tbody');
+    v.lines.forEach(function (l) {
+      tb.appendChild(el('tr', {}, [
+        el('td', {}, [el('div', { text: l.description }), l.note ? el('div', { class: 'sub', text: l.note }) : null]),
+        el('td', { class: 'n', text: String(l.qty) }),
+        el('td', { class: 'n', text: money(l.amount) })
+      ]));
+    });
+    tbl.appendChild(tb); pr.appendChild(tbl);
+    var tot = el('div', { class: 'tot' });
+    function r(label, val, cls) { tot.appendChild(el('div', { class: 'r ' + (cls || '') }, [el('span', { text: label }), el('span', { text: val })])); }
+    r('Repairs', money(v.subtotal));
+    if (v.tripFee) r('Trip fee', money(v.tripFee));
+    if (v.discount) r('Discount', money(-v.discount));
+    if (v.tax) r('Tax' + (v.taxPct ? ' (' + v.taxPct + '%)' : ''), money(v.tax));
+    r('Total', money(v.total), 'grand');
+    pr.appendChild(tot);
+    if (v.terms) pr.appendChild(el('div', { class: 'terms', text: v.terms }));
+    var img = null;
+    if (v.accepted) img = sigNode(v.accepted, 150, 46);
+    pr.appendChild(el('div', { class: 'sign' }, [
+      el('div', {}, [el('div', { class: 'above' }, [img]), el('div', { class: 'label', text: 'Accepted by' + (v.accepted ? ' ' + v.accepted.name : '') })]),
+      el('div', {}, [el('div', { class: 'above', text: v.accepted ? v.accepted.date : '' }), el('div', { class: 'label', text: 'Date' })])]));
+    return pr;
+  }
+  function printQuote(q) {
+    if (q.status === 'draft') {
+      var ix = indexes();
+      var pr = P.priceLines(q.lines, state.doc.settings, ix.tasks, ix.parts);
+      var bad = quoteProblems(q, pr, P.totals(pr, q.tripFee, q.discount, P.num(q.taxPct) / 100));
+      if (bad) { toast(bad, true); return; }
+    }
+    var v = customerView(q);
+    renderPrint(v);
+    var oldTitle = document.title;
+    document.title = v.number ? 'Quote ' + v.number : 'Estimate';
+    function done() { document.title = oldTitle; root.removeEventListener('afterprint', done); }
+    root.addEventListener('afterprint', done);
+    setTimeout(function () { root.print(); }, 50);
+  }
+
+  // ---- price book ------------------------------------------------------------------------------------
+  function bookScreen() {
+    if (state.edit && state.edit.kind === 'task') return taskEditor();
+    if (state.edit && state.edit.kind === 'part') return partEditor();
+    var wrap = el('div');
+    var sw = el('div', { class: 'actions2', style: 'margin:0 0 12px' }, [
+      el('button', { class: 'btn' + (state.book === 'tasks' ? ' navy' : ''), text: 'Repairs', onclick: function () { state.book = 'tasks'; render(); } }),
+      el('button', { class: 'btn' + (state.book === 'parts' ? ' navy' : ''), text: 'Parts', onclick: function () { state.book = 'parts'; render(); } })
+    ]);
+    wrap.appendChild(sw);
+    var ix = indexes(), s = state.doc.settings;
+    var filter = state.bookFilter || '';
+    wrap.appendChild(el('div', { class: 'search' }, [el('input', { type: 'search', placeholder: 'Search', value: filter, oninput: function (e) { state.bookFilter = e.target.value; renderBookList(); } })]));
+    var listEl = el('div', { class: 'list' });
+    function renderBookList() {
+      clear(listEl);
+      var f = (state.bookFilter || '').toLowerCase();
+      if (state.book === 'tasks') {
+        state.doc.tasks.forEach(function (t, i) {
+          if (f && (t.name + ' ' + t.category).toLowerCase().indexOf(f) < 0) return;
+          var tp = P.taskPrice(t, s, ix.parts);
+          var flag = tp.standard > 0 && (tp.margin < 0.45 || tp.margin > 0.75);
+          listEl.appendChild(el('button', { class: 'item', onclick: function () { state.edit = { kind: 'task', index: i }; render(); } }, [
+            el('div', { class: 'main' }, [el('div', { class: 'name', text: t.name }), el('div', { class: 'small muted' }, [(t.category || '') + ' · ' + P.num(t.hours) + ' h', flag ? el('span', { class: 'flag', text: ' · margin ' + pct(tp.margin) + ' ⚠' }) : null])]),
+            el('div', { class: 'money', text: money(tp.standard) })
+          ]));
+        });
+      } else {
+        state.doc.parts.forEach(function (p, i) {
+          if (f && (p.name + ' ' + p.category).toLowerCase().indexOf(f) < 0) return;
+          var pp = P.partPrice(p, s);
+          listEl.appendChild(el('button', { class: 'item', onclick: function () { state.edit = { kind: 'part', index: i }; render(); } }, [
+            el('div', { class: 'main' }, [el('div', { class: 'name', text: p.name }), el('div', { class: 'small muted', text: (p.category || '') + ' · cost ' + money(pp.landed) + ' · ×' + pp.multiplier })]),
+            el('div', { class: 'money', text: money(pp.price) })
+          ]));
+        });
+      }
+      if (!listEl.childNodes.length) listEl.appendChild(el('div', { class: 'empty', text: 'Nothing here.' }));
+    }
+    renderBookList();
+    wrap.appendChild(listEl);
+    wrap.appendChild(el('button', { class: 'btn wide', text: state.book === 'tasks' ? '+ New repair' : '+ New part', onclick: function () {
+      if (state.book === 'tasks') { state.doc.tasks.push({ name: '', category: '', hours: '', parts: [], reserve: null }); state.edit = { kind: 'task', index: state.doc.tasks.length - 1, fresh: true }; }
+      else { state.doc.parts.push({ name: '', category: '', note: '', cost: '', freight: '', override: null }); state.edit = { kind: 'part', index: state.doc.parts.length - 1, fresh: true }; }
+      touched(); render();
+    } }));
+    return wrap;
+  }
+  // ---- pickers ---------------------------------------------------------------------------------
+  // The phone's native <select> is a wall of radio rows in file order. Ours: sorted, grouped by category,
+  // searchable, compact — and the trigger shows what is picked.
+  function grouped(list) {
+    var by = {};
+    list.forEach(function (x) { if (!x.name) return; var c = x.category || 'Other'; (by[c] = by[c] || []).push(x.name); });
+    return Object.keys(by).sort().map(function (c) { return { label: c, items: by[c].sort() }; });
+  }
+  function pickSheet(title, groups, current, onPick) {
+    var m = el('div', { class: 'modal' });
+    var rows = el('div', { class: 'rows' });
+    var q = el('input', { type: 'search', placeholder: 'Search', autocomplete: 'off', 'aria-label': 'Search ' + title });
+    var sheet = el('div', { class: 'sheet picker' }, [
+      el('div', { class: 'head' }, [q, el('button', { class: 'x', text: '✕', 'aria-label': 'Close', onclick: function () { document.body.removeChild(m); } })]),
+      rows]);
+    function fill() {
+      clear(rows);
+      var f = q.value.trim().toLowerCase(), any = false;
+      groups.forEach(function (g) {
+        var hit = g.items.filter(function (n) { return !f || (n + ' ' + g.label).toLowerCase().indexOf(f) >= 0; });
+        if (!hit.length) return;
+        any = true;
+        rows.appendChild(el('div', { class: 'cat', text: g.label }));
+        hit.forEach(function (n) {
+          rows.appendChild(el('button', { class: 'row' + (n === current ? ' cur' : ''), text: n, onclick: function () { document.body.removeChild(m); onPick(n); } }));
+        });
+      });
+      if (!any) rows.appendChild(el('div', { class: 'cat', text: 'Nothing matches' }));
+    }
+    q.addEventListener('input', fill);
+    fill();
+    m.appendChild(sheet);
+    m.addEventListener('click', function (e) { if (e.target === m) document.body.removeChild(m); });
+    document.body.appendChild(m);
+    var cur = rows.querySelector('.cur'); if (cur) cur.scrollIntoView({ block: 'center' });
+    return m;
+  }
+  // Trigger: looks like a field, shows the choice (or the placeholder), opens the sheet.
+  function pickBtn(placeholder, value, shown, groups, onPick, attrs) {
+    var a = { type: 'button', class: 'pick' + (value ? '' : ' blank'), onclick: function () { pickSheet(placeholder, groups, value, onPick); } };
+    Object.keys(attrs || {}).forEach(function (k) { a[k] = attrs[k]; });
+    return el('button', a, [el('span', { class: 'val', text: shown || placeholder }), el('span', { class: 'chev', text: '▾' })]);
+  }
+  // Category: pick from the ones already in use, or type a new one. Keeps the book from growing 'electrical',
+  // 'Electrical' and 'elec' side by side.
+  function catIn(obj, list, onchange) {
+    var cats = []; list.forEach(function (x) { var c = (x.category || '').trim(); if (c && cats.indexOf(c) < 0) cats.push(c); });
+    if (obj.category && cats.indexOf(obj.category) < 0) cats.push(obj.category);
+    cats.sort();
+    var wrap = el('div');
+    function asText() {
+      clear(wrap);
+      var inp = textIn(obj, 'category', onchange, { placeholder: 'New category' });
+      wrap.appendChild(inp); inp.focus();
+    }
+    var sel = el('select', { onchange: function (e) {
+      if (e.target.value === '*new*') { asText(); return; }
+      var from = obj.category; obj.category = e.target.value; onchange(from, obj.category);
+    } });
+    sel.appendChild(el('option', { value: '', text: obj.category ? '(none)' : 'Pick a category…', selected: !obj.category }));
+    cats.forEach(function (c) { sel.appendChild(el('option', { value: c, text: c, selected: c === obj.category })); });
+    sel.appendChild(el('option', { value: '*new*', text: 'New category…' }));
+    wrap.appendChild(sel);
+    return wrap;
+  }
+  function field(label, input) { return el('div', { class: 'field' }, [el('label', { text: label }), input]); }
+  function textIn(obj, key, onchange, attrs) {
+    var a = { type: 'text', value: obj[key] === null || obj[key] === undefined ? '' : obj[key], autocomplete: 'off',
+              onchange: function (e) { var from = obj[key]; obj[key] = e.target.value; onchange(from, obj[key]); } };
+    Object.keys(attrs || {}).forEach(function (k) { a[k] = attrs[k]; });
+    return el('input', a);
+  }
+  function numInput(obj, key, onchange, attrs) {
+    var a = { type: 'number', inputmode: 'decimal', step: 'any', value: obj[key] === null || obj[key] === undefined ? '' : obj[key],
+              onchange: function (e) { var from = obj[key]; obj[key] = numIn(e.target.value, attrs && attrs.min !== undefined ? Number(attrs.min) : undefined); if (String(e.target.value) !== String(obj[key])) e.target.value = obj[key]; onchange(from, obj[key]); } };
+    Object.keys(attrs || {}).forEach(function (k) { a[k] = attrs[k]; });
+    return el('input', a);
+  }
+  function renameEverywhere(kind, from, to) {
+    // A renamed part or repair keeps working in the tasks / quotes that use it (issued quotes stay editable for
+    // a re-issue, so they follow too). Issued snapshots keep the old text the customer saw.
+    if (!from || from === to) return;
+    if (kind === 'part') state.doc.tasks.forEach(function (t) { (t.parts || []).forEach(function (sl) { if (sl.part === from) sl.part = to; }); });
+    else if (kind === 'warranty') state.doc.quotes.forEach(function (q) { if (q.status !== 'void') q.lines.forEach(function (l) { if (l.warranty === from) l.warranty = to; }); });
+    else state.doc.quotes.forEach(function (q) { if (q.status !== 'void') q.lines.forEach(function (l) { if (!l.freeform && l.task === from) l.task = to; }); });
+  }
+  function taskEditor() {
+    var t = state.doc.tasks[state.edit.index], s = state.doc.settings, ix = indexes();
+    if (!t) { state.edit = null; return bookScreen(); }
+    var wrap = el('div');
+    function ch(field) { return function (from, to) { S.logChange(state.doc, 'task', t.name, field, from, to); touched(); refresh(); }; }
+    var card = el('div', { class: 'card' });
+    card.appendChild(field('Repair', textIn(t, 'name', function (from, to) {
+      if (!String(to || '').trim() && String(from || '').trim()) { t.name = from; toast('A repair needs a name.', true); render(); return; }
+      if (String(to || '').trim()) state.edit.fresh = false;                 // it has a name now: never auto-dropped
+      if (nameTaken(state.doc.tasks, to, t)) { t.name = from; toast('There is already a repair called ' + to.trim() + '.', true); render(); return; }
+      renameEverywhere('task', from, to); S.logChange(state.doc, 'task', to, 'name', from, to); touched(); refresh();
+    }, { 'data-k': 'task.name' })));
+    card.appendChild(el('div', { class: 'grid2' }, [
+      field('Category', catIn(t, state.doc.tasks, ch('category'))),
+      field('Hours', numInput(t, 'hours', ch('hours'), { min: '0' }))
+    ]));
+    card.appendChild(field('Warranty reserve % (blank = ' + pct(s.warrantyReserve) + ')', numInput({ reserve: t.reserve === null || t.reserve === undefined || t.reserve === '' ? '' : t.reserve * 100 }, 'reserve', function (from, to) {
+      var v = to === '' ? null : to / 100; S.logChange(state.doc, 'task', t.name, 'reserve', t.reserve, v); t.reserve = v; touched(); refresh();
+    })));
+    wrap.appendChild(card);
+
+    wrap.appendChild(el('h3', { text: 'Parts used' }));
+    var slots = el('div', { class: 'slots card' });
+    t.parts = t.parts || [];
+    t.parts.forEach(function (sl, i) {
+      var sel = pickBtn('Pick a part…', sl.part, sl.part && !ix.parts[sl.part] ? sl.part + ' (missing)' : sl.part, grouped(state.doc.parts),
+                        function (name) { var from = sl.part; sl.part = name; S.logChange(state.doc, 'task', t.name, 'part ' + (i + 1), from, sl.part); touched(); render(); },
+                        { 'data-k': 'slot' + i });
+      slots.appendChild(el('div', { class: 'slot' }, [
+        sel,
+        numInput(sl, 'qty', function (from, to) { S.logChange(state.doc, 'task', t.name, 'qty ' + (sl.part || i + 1), from, to); touched(); refresh(); }, { placeholder: 'Qty', min: '0' }),
+        el('button', { class: 'x', text: '✕', onclick: function () { t.parts.splice(i, 1); S.logChange(state.doc, 'task', t.name, 'part removed', sl.part, ''); touched(); render(); } })
+      ]));
+    });
+    slots.appendChild(el('button', { class: 'btn small', text: '+ Part', onclick: function () { t.parts.push({ part: '', qty: 1 }); touched(); render(); } }));
+    wrap.appendChild(slots);
+
+    wrap.appendChild(el('h3', { text: 'What it bills' }));
+    var ratesEl = el('div', { class: 'card rates' });
+    function refresh() {
+      clear(ratesEl);
+      var tp = P.taskPrice(t, s, indexes().parts);
+      function r(l, v, cls) { ratesEl.appendChild(el('div', { text: l })); ratesEl.appendChild(el('div', { class: 'v ' + (cls || ''), text: v })); }
+      r('Labor', money(tp.laborBilled)); r('Parts', money(tp.partsBilled));
+      r('Standard price', money(tp.standard)); r('After-hours', money(tp.afterHours)); r('Attic / roof', money(tp.attic));
+      r('Your cost', money(tp.directCost));
+      var flag = tp.standard > 0 && (tp.margin < 0.45 || tp.margin > 0.75);
+      r('Margin', pct(tp.margin) + (flag ? ' ⚠' : ''), flag ? 'flag' : '');
+    }
+    refresh();
+    wrap.appendChild(ratesEl);
+    wrap.appendChild(el('button', { class: 'btn wide danger', text: 'Delete repair', onclick: function () {
+      confirmBox('Delete ' + (t.name || 'this repair') + '?', 'Quotes that use it will show it as not in the book and cannot be locked until the line is changed.', 'Delete', function () {
+        S.logChange(state.doc, 'task', t.name, 'deleted', t.name, ''); state.doc.tasks.splice(state.edit.index, 1); state.edit = null; touched(); render();
+      }, true);
+    } }));
+    return wrap;
+  }
+  function partEditor() {
+    var p = state.doc.parts[state.edit.index], s = state.doc.settings;
+    if (!p) { state.edit = null; return bookScreen(); }
+    var wrap = el('div');
+    function ch(field) { return function (from, to) { S.logChange(state.doc, 'part', p.name, field, from, to); touched(); refresh(); }; }
+    var card = el('div', { class: 'card' });
+    card.appendChild(field('Part', textIn(p, 'name', function (from, to) {
+      if (nameTaken(state.doc.parts, to, p)) { p.name = from; toast('There is already a part called ' + to.trim() + '.', true); render(); return; }
+      renameEverywhere('part', from, to); S.logChange(state.doc, 'part', to, 'name', from, to); touched(); refresh();
+    }, { 'data-k': 'part.name' })));
+    card.appendChild(field('Category', catIn(p, state.doc.parts, ch('category'))));
+    card.appendChild(el('div', { class: 'grid2' }, [
+      field('Cost', numInput(p, 'cost', ch('cost'), { min: '0' })),
+      field('Freight', numInput(p, 'freight', ch('freight'), { min: '0' }))
+    ]));
+    card.appendChild(field('Markup override (blank = tier)', numInput({ override: p.override === null || p.override === undefined ? '' : p.override }, 'override', function (from, to) {
+      var v = to === '' ? null : to; S.logChange(state.doc, 'part', p.name, 'override', p.override, v); p.override = v; touched(); refresh();
+    }, { min: '0', placeholder: 'e.g. 1.6' })));
+    card.appendChild(field('Note', textIn(p, 'note', function () { touched(); })));
+    wrap.appendChild(card);
+    var ratesEl = el('div', { class: 'card rates' });
+    function refresh() {
+      clear(ratesEl);
+      var pp = P.partPrice(p, s);
+      function r(l, v) { ratesEl.appendChild(el('div', { text: l })); ratesEl.appendChild(el('div', { class: 'v', text: v })); }
+      r('Landed cost', money(pp.landed)); r('Markup', '×' + pp.multiplier); r('Bills at', money(pp.price));
+      var used = state.doc.tasks.filter(function (t) { return (t.parts || []).some(function (sl) { return sl.part === p.name; }); }).length;
+      r('Used in', used + ' repair' + (used === 1 ? '' : 's'));
+    }
+    refresh();
+    wrap.appendChild(ratesEl);
+    wrap.appendChild(el('button', { class: 'btn wide danger', text: 'Delete part', onclick: function () {
+      confirmBox('Delete ' + (p.name || 'this part') + '?', 'Repairs that use it will price it at $0 until you pick another.', 'Delete', function () {
+        S.logChange(state.doc, 'part', p.name, 'deleted', p.name, ''); state.doc.parts.splice(state.edit.index, 1); state.edit = null; touched(); render();
+      }, true);
+    } }));
+    return wrap;
+  }
+
+  // ---- setup --------------------------------------------------------------------------------------------
+  function setupScreen() {
+    var s = state.doc.settings, b = state.doc.business;
+    var wrap = el('div');
+    function sch(key) { return function (from, to) { S.logChange(state.doc, 'settings', key, key, from, to); touched(); refreshRates(); }; }
+    function pctIn(obj, key, onchange, attrs) {
+      // shown as a percent, stored as a fraction
+      var shadow = { v: obj[key] === '' || obj[key] === null || obj[key] === undefined ? '' : Math.round(obj[key] * 10000) / 100 };
+      return numInput(shadow, 'v', function (from, to) { var f = to === '' ? '' : to / 100; var was = obj[key]; obj[key] = f; onchange(was, f); }, attrs);
+    }
+
+    wrap.appendChild(el('h3', { text: 'Your business (on the quote)' }));
+    var bc = el('div', { class: 'card' });
+    if (!b.name) bc.appendChild(el('div', { class: 'warn', text: 'Start here. Every number below is a starting point from an average one-truck shop - change every one to yours.' }));
+    bc.appendChild(field('Business name', textIn(b, 'name', function () { touched(); var h = document.querySelector('header .title'); if (h) h.textContent = b.name || 'HVAC CRM'; })));
+    bc.appendChild(el('div', { class: 'grid2' }, [field('Phone', textIn(b, 'phone', function () { touched(); }, { type: 'tel' })), field('Email', textIn(b, 'email', function () { touched(); }, { type: 'email' }))]));
+    bc.appendChild(field('Address', textIn(b, 'address', function () { touched(); })));
+    bc.appendChild(field('License #', textIn(b, 'license', function () { touched(); })));
+    wrap.appendChild(bc);
+
+    wrap.appendChild(el('h3', { text: 'Labor' }));
+    var lc = el('div', { class: 'card' });
+    lc.appendChild(el('div', { class: 'grid2' }, [field('Tech wage $/hr', numInput(s, 'wage', sch('wage'), { min: '0' })), field('Burden % (payroll tax, comp, benefits - 20-30%)', pctIn(s, 'burden', sch('burden')))]));
+    lc.appendChild(el('div', { class: 'grid2' }, [field('Billable hours / yr', numInput(s, 'billableHours', sch('billableHours'), { min: '0' })), field('Billable efficiency % (how much of a paid hour you can bill - 60-70%)', pctIn(s, 'efficiency', sch('efficiency')))]));
+    lc.appendChild(field('Target margin % (a check on your rate - it does not change prices)', pctIn(s, 'targetMargin', sch('targetMargin'))));
+    wrap.appendChild(lc);
+
+    wrap.appendChild(el('h3', { text: 'Yearly overhead' }));
+    var oc = el('div', { class: 'card' });
+    oc.appendChild(el('div', { class: 'grid2' }, [field('Vehicle', numInput(s, 'vehicle', sch('vehicle'), { min: '0' })), field('Insurance', numInput(s, 'insurance', sch('insurance'), { min: '0' }))]));
+    oc.appendChild(el('div', { class: 'grid2' }, [field('Tools', numInput(s, 'tools', sch('tools'), { min: '0' })), field('Shop / office', numInput(s, 'shop', sch('shop'), { min: '0' }))]));
+    wrap.appendChild(oc);
+
+    wrap.appendChild(el('h3', { text: 'Your rates' }));
+    var ratesEl = el('div', { class: 'card rates' });
+    function refreshRates() {
+      clear(ratesEl);
+      var r = P.rates(state.doc.settings);
+      function row(l, v, cls) { ratesEl.appendChild(el('div', { text: l })); ratesEl.appendChild(el('div', { class: 'v ' + (cls || ''), text: v })); }
+      row('Burdened wage', money(r.burdened) + '/hr'); row('Overhead', money(r.overhead) + '/yr'); row('Overhead per hour', money(r.overheadPerHour));
+      var lf = r.loaded < 60 || r.loaded > 250;
+      row('Loaded rate', money(r.loaded) + '/hr' + (lf ? ' ⚠' : ''), lf ? 'flag' : '');
+      row('Minimum with margin', money(r.minimum) + '/hr');
+      if (P.num(state.doc.settings.efficiency) <= 0) ratesEl.appendChild(el('div', { class: 'warn', style: 'grid-column:1/-1', text: 'Efficiency is 0 - every price is $0 until it is set.' }));
+      if (P.num(state.doc.settings.billableHours) <= 0) ratesEl.appendChild(el('div', { class: 'warn', style: 'grid-column:1/-1', text: 'Billable hours is 0 - no overhead is being recovered in the rate.' }));
+      if (state.doc.settings.tripFee === '' || state.doc.settings.tripFee === null || state.doc.settings.tripFee === undefined)
+        ratesEl.appendChild(el('div', { class: 'warn', style: 'grid-column:1/-1', text: 'Trip fee is blank - new quotes will start with no trip fee.' }));
+      var wr = P.num(state.doc.settings.warrantyReserve);
+      if (wr < 0.02 || wr > 0.08) ratesEl.appendChild(el('div', { class: 'warn', style: 'grid-column:1/-1', text: 'Warranty reserve is usually 2-8%.' }));
+    }
+    refreshRates();
+    wrap.appendChild(ratesEl);
+
+    wrap.appendChild(el('h3', { text: 'Pricing rules' }));
+    var pc = el('div', { class: 'card' });
+    pc.appendChild(el('div', { class: 'grid2' }, [field('Warranty reserve %', pctIn(s, 'warrantyReserve', sch('warrantyReserve'))), field('Consumables % on parts', pctIn(s, 'consumables', sch('consumables')))]));
+    pc.appendChild(el('div', { class: 'grid2' }, [field('After-hours labor +%', pctIn(s, 'afterHours', sch('afterHours'))), field('Attic / roof labor +%', pctIn(s, 'attic', sch('attic')))]));
+    pc.appendChild(el('div', { class: 'grid2' }, [field('Trip fee', numInput(s, 'tripFee', sch('tripFee'), { min: '0' })), field('Repeat-line labor discount %', pctIn(s, 'repeatDiscount', sch('repeatDiscount')))]));
+    wrap.appendChild(pc);
+
+    wrap.appendChild(el('h3', { text: 'Parts markup tiers' }));
+    var tc = el('div', { class: 'card' });
+    s.tiers = s.tiers || {};
+    function tch(key) { return function (from, to) { S.logChange(state.doc, 'settings', 'tiers.' + key, key, from, to); touched(); }; }
+    tc.appendChild(el('div', { class: 'grid2' }, [field('Under $', numInput(s.tiers, 't1', tch('t1'), { min: '0' })), field('× markup', numInput(s.tiers, 'm1', tch('m1'), { min: '0' }))]));
+    tc.appendChild(el('div', { class: 'grid2' }, [field('Under $', numInput(s.tiers, 't2', tch('t2'), { min: '0' })), field('× markup', numInput(s.tiers, 'm2', tch('m2'), { min: '0' }))]));
+    tc.appendChild(el('div', { class: 'grid2' }, [field('Under $', numInput(s.tiers, 't3', tch('t3'), { min: '0' })), field('× markup', numInput(s.tiers, 'm3', tch('m3'), { min: '0' }))]));
+    tc.appendChild(field('Above that × markup', numInput(s.tiers, 'm4', tch('m4'), { min: '0' })));
+    wrap.appendChild(tc);
+
+    wrap.appendChild(el('h3', { text: 'Warranty tiers' }));
+    var wc = el('div', { class: 'card' });
+    s.warranties = s.warranties || [];
+    s.warranties.forEach(function (w, i) {
+      wc.appendChild(el('div', { class: 'grid3' }, [
+        field('Label', textIn(w, 'label', function (from, to) {
+          if (to && s.warranties.some(function (o) { return o !== w && o.label === to; })) { w.label = from; toast('That warranty label is already used.', true); render(); return; }
+          renameEverywhere('warranty', from, to); S.logChange(state.doc, 'settings', 'warranty ' + (i + 1), 'label', from, to); touched();
+        }, { 'data-k': 'w' + i + '.label' })),
+        field('× price', numInput(w, 'multiplier', function (from, to) { S.logChange(state.doc, 'settings', 'warranty ' + (i + 1), 'multiplier', from, to); touched(); }, { min: '0', 'data-k': 'w' + i + '.mult' })),
+        el('div', { class: 'field' }, [el('label', { text: ' ' }), el('button', { class: 'x', text: '✕', onclick: function () {
+          renameEverywhere('warranty', w.label, '');           // lines on this tier go back to standard
+          S.logChange(state.doc, 'settings', 'warranty ' + (i + 1), 'removed', w.label, ''); s.warranties.splice(i, 1); touched(); render();
+        } })])
+      ]));
+    });
+    wc.appendChild(el('button', { class: 'btn small', text: '+ Tier', onclick: function () { s.warranties.push({ label: '', multiplier: 1 }); touched(); render(); } }));
+    wrap.appendChild(wc);
+
+    wrap.appendChild(el('h3', { text: 'Terms printed on every quote' }));
+    wrap.appendChild(el('div', { class: 'card' }, [el('div', { class: 'field' }, [
+      el('textarea', { value: state.doc.terms || '', onchange: function (e) { state.doc.terms = e.target.value; touched(); } })])]));
+
+    if (state.doc.priceLog.length) {
+      wrap.appendChild(el('h3', { text: 'Recent price changes' }));
+      var lg = el('div', { class: 'card small' });
+      state.doc.priceLog.slice(-15).reverse().forEach(function (e) {
+        lg.appendChild(el('div', { text: fmtTime(e.at) + ' · ' + e.name + ' ' + e.field + ': ' + (e.from === null || e.from === undefined ? '—' : e.from) + ' → ' + (e.to === null || e.to === undefined ? '—' : e.to) }));
+      });
+      wrap.appendChild(lg);
+    }
+    return wrap;
+  }
+
+  root.FYS.ui = { boot: boot, customerView: customerView, renderPrint: renderPrint, money: money, state: state, render: render, hasSig: hasSig };
+})(window);
+
+</script>
+<script id="fys-end">window.FYS_COMPLETE=true;window.FYS_PRISTINE='<!doctype html>\n'+document.documentElement.outerHTML;FYS.ui.boot();</script>
+</body>
+</html>
