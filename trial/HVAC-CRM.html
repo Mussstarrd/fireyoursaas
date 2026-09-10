@@ -589,6 +589,8 @@ h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: u
     })();
   }
   FileIO.prototype.canPick = function () { return typeof root.showOpenFilePicker === 'function'; };
+  // Served over http(s) (the trial link, the PC drop box): there is no file on this device to pick yet.
+  FileIO.prototype.fromWeb = function () { try { return /^https?:$/.test(root.location.protocol); } catch (e) { return false; } };
   // The file handle is remembered in IndexedDB so the picker is needed once per FILE, not once per session.
   // The browser still asks "Save changes to X?" once per session; that is a prompt, not a file hunt.
   var DB = 'fys-crm', STORE = 'kv';
@@ -666,6 +668,16 @@ h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: u
         });
       });
   };
+  // First save from the web: make the file (the save-as picker, once), remember it, and it is THE file from now on.
+  // Not a copy: nothing existed before it. Later saves on this origin recall the handle and write in place.
+  FileIO.prototype.create = function (doc) {
+    var self = this;
+    return root.showSaveFilePicker({ suggestedName: self.suggestedName(), types: [{ description: 'CRM file', accept: { 'text/html': ['.html'] } }] })
+      .then(function (h) {
+        self.handle = h; self.fileName = h.name; self.justCreated = true;
+        return self.remember(h).then(function () { return h; }, function () { return h; });
+      });
+  };
   // The remembered handle, if it still points at this file and the browser lets us write it. Null otherwise.
   FileIO.prototype.recall = function (doc) {
     var self = this;
@@ -694,11 +706,16 @@ h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: u
     if (!self.canPick()) {
       var ne = new Error('this browser cannot write files'); ne.name = 'NoPicker'; return Promise.reject(ne);
     }
-    return self.recall(doc).then(function (h) { return h || self.pick(doc); }).then(function (h) { return self.commit(h, text, doc); });
+    return self.recall(doc).then(function (h) {
+      if (h) return h;
+      if (self.fromWeb() && self.canSaveAs()) return self.create(doc);   // no file on this device yet: make it
+      return self.pick(doc);
+    }).then(function (h) { return self.commit(h, text, doc); });
   };
   FileIO.prototype.commit = function (h, text, doc) {
     var self = this;
-    return writeTo(h, text).then(function () { self.loadedRev = doc.rev; self.adopt = false; return { method: 'inplace', name: h.name }; });
+    var method = self.justCreated ? 'created' : 'inplace'; self.justCreated = false;
+    return writeTo(h, text).then(function () { self.loadedRev = doc.rev; self.adopt = false; return { method: method, name: h.name }; });
   };
   // A backup: the same data, stamped so that opening it can never start a second working file.
   // It carries which file it came from and when, and its own id so it can never overwrite the original.
@@ -1014,6 +1031,8 @@ h3 { font-size: 15px; margin: 18px 0 8px; color: var(--muted); text-transform: u
       state.dirty = false; S.cache.clear();
       var b = document.querySelector('header .save'); if (b) b.classList.remove('dirty');
       if (r.method === 'inplace') toast('Saved into ' + r.name);
+      else if (r.method === 'created') modal('Saved to this phone', el('p', { text: 'Your work is now in ' + r.name + '. ' +
+        'Save keeps writing into that file, here or after you open it from your Files app. Opened from Files it runs without internet.' }), [{ label: 'OK', cls: 'primary' }]);
       else toast('Saved a copy to Downloads: ' + r.name, true);
     }, function (e) {
       if (e && e.name === 'AbortError') return;
